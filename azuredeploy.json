@@ -388,6 +388,7 @@
     },
     "enablePE": "[not(equals(parameters('privateEndpointType'), 'none'))]",
     "networkSecurityGroupName" : "[format('{0}-nsg', resourceGroup().name)]",
+    "routeTableName": "[format('{0}-rt', resourceGroup().name)]",
     "networkRuleSetBehindVNet": {
       "defaultAction": "deny",
       "virtualNetworkRules": [
