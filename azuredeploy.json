@@ -832,7 +832,8 @@
       "properties": {
         "apiProperties": {
           "statisticsEnabled": false
-        }
+        },
+        "customSubDomainName" : "[parameters('cognitiveServiceName')]"
       }
     },
     {
