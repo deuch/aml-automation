@@ -82,7 +82,7 @@
     },
     "storageAccountName": {
       "type": "string",
-      "defaultValue": "[format('{0}-sa-{1}', resourceGroup().name, uniqueString(resourceGroup().id, parameters('workspaceName')))]",
+      "defaultValue": "[format('{0}-sa-{1}', resourceGroup().name, substring(uniqueString(resourceGroup().id, parameters('workspaceName'))),0,3)]",
       "metadata": {
         "description": "Name of the storage account."
       }
@@ -130,7 +130,7 @@
     },
     "keyVaultName": {
       "type": "string",
-      "defaultValue": "[format('{0}-kv-{1}', resourceGroup().name, uniqueString(resourceGroup().id, parameters('workspaceName')))]",
+      "defaultValue": "[format('{0}-kv-{1}', resourceGroup().name, substring(uniqueString(resourceGroup().id, parameters('workspaceName'))),0,3)]",
       "metadata": {
         "description": "Name of the key vault."
       }
