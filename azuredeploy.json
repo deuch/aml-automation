@@ -387,7 +387,7 @@
       "azurechinacloud": "privatelink.notebooks.chinacloudapi.cn"
     },
     "enablePE": "[not(equals(parameters('privateEndpointType'), 'none'))]",
-    "networkSecurityGroupName" : "[format('{0}-nsg', parameters('vnetName')]",
+    "networkSecurityGroupName" : "[format('{0}-nsg', parameters('vnetName'))]",
     "networkRuleSetBehindVNet": {
       "defaultAction": "deny",
       "virtualNetworkRules": [
@@ -480,7 +480,7 @@
   "resources": [
     {
       "type": "Microsoft.Network/networkSecurityGroups",
-      "name": "[format('{0}-nsg', parameters('vnetName'))]",
+      "name": "[variables('networkSecurityGroupName')]",
       "location": "[parameters('location')]",
       "apiVersion": "2020-05-01",
       "properties": {
