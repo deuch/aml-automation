@@ -308,7 +308,7 @@
     },
     "subnetComputePrefix": {
       "type": "string",
-      "defaultValue": "[cidrSubnet(parameters('addressPrefixes'), 24, 0)]",
+      "defaultValue": "[cidrSubnet(first(parameters('addressPrefixes')), 24, 0)]",
       "metadata": {
         "description": "Subnet Compute instance prefix of the virtual network"
       }
@@ -322,7 +322,7 @@
     },
     "subnetPEPrefix": {
       "type": "string",
-      "defaultValue": "[cidrSubnet(parameters('addressPrefixes'), 24, 1)]",
+      "defaultValue": "[cidrSubnet(first(parameters('addressPrefixes')), 24, 1)]",
       "metadata": {
         "description": "Subnet private endpoint prefix of the virtual network"
       }
