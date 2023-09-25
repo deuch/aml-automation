@@ -101,7 +101,7 @@
     },
     "storageAccountBehindVNet": {
       "type": "string",
-      "defaultValue": "true",
+      "defaultValue": "false",
       "allowedValues": [
         "true",
         "false"
@@ -137,7 +137,7 @@
     },
     "keyVaultBehindVNet": {
       "type": "string",
-      "defaultValue": "true",
+      "defaultValue": "false",
       "allowedValues": [
         "true",
         "false"
@@ -222,6 +222,13 @@
       ],
       "metadata": {
         "description": "Determines whether or not to put container registry behind VNet."
+      }
+    },
+    "privateAZFWIP": {
+      "type": "string",
+      "defaultValue": "10.5.0.4",
+      "metadata": {
+        "description": "Private IP of the Firewall"
       }
     },
     "vnetOption": {
@@ -482,7 +489,7 @@
             "properties": {
               "addressPrefix": "0.0.0.0/0",
               "nextHopType": "VirtualAppliance",
-              "nextHopIpAddress": "[parameters('PrivateAZFWIP')]"
+              "nextHopIpAddress": "[parameters('privateAZFWIP')]"
             }
           }
         ]
