@@ -387,6 +387,7 @@
       "azurechinacloud": "privatelink.notebooks.chinacloudapi.cn"
     },
     "enablePE": "[not(equals(parameters('privateEndpointType'), 'none'))]",
+    "networkSecurityGroupName" : "[format('{0}-nsg', parameters('vnetName')]",
     "networkRuleSetBehindVNet": {
       "defaultAction": "deny",
       "virtualNetworkRules": [
@@ -478,6 +479,114 @@
   },
   "resources": [
     {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[format('{0}-nsg', parameters('vnetName')]",
+      "location": "[parameters('location')]",
+      "apiVersion": "2020-05-01",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "AADOutbound",
+            "properties": {
+              "description": "Allows AAD connectivity",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRanges": ["80","443"],
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "AzureActiveDirectory",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Outbound"
+            }
+          },
+          {
+            "name": "AML-TCP",
+            "properties": {
+              "description": "AML TCP Connectivity",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRanges": ["443","8787", "18881"],
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "AzureMachineLearning",
+              "access": "Allow",
+              "priority": 110,
+              "direction": "Outbound"
+            }
+          },
+          {
+            "name": "AML-UDP",
+            "properties": {
+              "description": "AML UDP Connectivity",
+              "protocol": "Udp",
+              "sourcePortRange": "*",
+              "destinationPortRanges": ["5831"],
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "AzureMachineLearning",
+              "access": "Allow",
+              "priority": 120,
+              "direction": "Outbound"
+            }
+          },
+          {
+            "name": "BatchNodeManagement",
+            "properties": {
+              "description": "Batch Node Management Connectivity",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRanges": ["443"],
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "BatchNodeManagement.FranceCentral",
+              "access": "Allow",
+              "priority": 130,
+              "direction": "Outbound"
+            }
+          },
+          {
+            "name": "ARM",
+            "properties": {
+              "description": "ARM Connectivity",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRanges": ["443"],
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "AzureResourceManager",
+              "access": "Allow",
+              "priority": 140,
+              "direction": "Outbound"
+            }
+          },
+          {
+            "name": "Storage",
+            "properties": {
+              "description": "Storage Connectivity",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRanges": ["443"],
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "Storage.FranceCentral",
+              "access": "Allow",
+              "priority": 150,
+              "direction": "Outbound"
+            }
+          },
+          {
+            "name": "FrontDoor",
+            "properties": {
+              "description": "Frontdoor Connectivity",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRanges": ["443"],
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "AzureFrontDoor.Frontend",
+              "access": "Allow",
+              "priority": 160,
+              "direction": "Outbound"
+            }
+          }
+        ]
+      }
+    },
+    {
       "condition": "[equals(parameters('vnetOption'), 'new')]",
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2022-05-01",
@@ -500,10 +609,14 @@
       "properties": {
         "addressPrefix": "[parameters('subnetComputePrefix')]",
         "privateLinkServiceNetworkPolicies": "Enabled",
-        "serviceEndpoints": "[if(equals(toLower(environment().name), 'azurechinacloud'), variables('serviceEndpointsAzureChinaCloud'), variables('serviceEndpointsAll'))]"
+        "serviceEndpoints": "[if(equals(toLower(environment().name), 'azurechinacloud'), variables('serviceEndpointsAzureChinaCloud'), variables('serviceEndpointsAll'))]",
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
+        }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
       ]
     },
     {
@@ -514,9 +627,13 @@
       "properties": {
         "addressPrefix": "[parameters('subnetPEPrefix')]",
         "privateLinkServiceNetworkPolicies": "Enabled",
-        "serviceEndpoints": "[if(equals(toLower(environment().name), 'azurechinacloud'), variables('serviceEndpointsAzureChinaCloud'), variables('serviceEndpointsAll'))]"
+        "serviceEndpoints": "[if(equals(toLower(environment().name), 'azurechinacloud'), variables('serviceEndpointsAzureChinaCloud'), variables('serviceEndpointsAll'))]",
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
+        }
       },
       "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]",
         "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetComputeName'))]"
       ]
     },
