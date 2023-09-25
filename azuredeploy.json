@@ -1261,7 +1261,7 @@
             {
               "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
               "apiVersion": "2020-05-01",
-              "name": "[format('{0}/{1}', parameters('hubVNetName')), format('{0}-{1}', parameters('hubVNetName'), parameters('vnetName')))]",
+              "name": "[format('{0}/{1}', parameters('hubVNetName'), format('{0}-{1}', parameters('hubVNetName'), parameters('vnetName')))]",
         
               "properties": {
                 "allowVirtualNetworkAccess": true,
