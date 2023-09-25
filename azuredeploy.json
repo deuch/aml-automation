@@ -238,11 +238,26 @@
         "description": "Determines whether or not to put container registry behind VNet."
       }
     },
+
     "privateAZFWIP": {
       "type": "string",
       "defaultValue": "10.5.0.4",
       "metadata": {
-        "description": "Private IP of the Firewall"
+        "description": "Private IP of the Azure Firewall"
+      }
+    },
+    "hubVNetName": {
+      "type": "string",
+      "defaultValue": "vnet-aml-hub",
+      "metadata": {
+        "description": "Name of the Hub VNET"
+      }
+    },
+    "hubVNetResourceGroupName": {
+      "type": "string",
+      "defaultValue": "aml-hub",
+      "metadata": {
+        "description": "Resource Group of the Hub Vnet"
       }
     },
     "vnetOption": {
@@ -382,6 +397,7 @@
     "vnetId": "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
     "subnetComputeId": "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetComputeName'))]",
     "subnetPEId": "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetPEName'))]",
+    "hubVnetId": "[resourceId(parameters('hubVNetResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('hubVNetName'))]",
     "privateDnsZoneName": {
       "azureusgovernment": "privatelink.api.ml.azure.us",
       "azurechinacloud": "privatelink.api.ml.azure.cn",
@@ -487,7 +503,7 @@
     "blobPEConnections": "[array(variables('privateBlobEndpointSettings'))]",
     "filePEConnections": "[array(variables('privateFileEndpointSettings'))]",
     "KVPEConnections": "[array(variables('privateKVEndpointSettings'))]",
-    "AOAIEConnections": "[array(variables('privateAOAIEndpointSettings'))]",
+    "AOAIConnections": "[array(variables('privateAOAIEndpointSettings'))]",
     "userAssignedIdentities": "[union(variables('userAssignedIdentitiesPrimary'), variables('userAssignedIdentitiesCmk'))]",
     "userAssignedIdentityPrimary": {
       "[format('{0}', variables('primaryUserAssignedIdentity'))]": {}
@@ -680,6 +696,42 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetComputeName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+      "apiVersion": "2020-05-01",
+      "name": "[format('{0}/{1}', parameters('vnetName'), format('{0}-{1}', parameters('vnetName'), parameters('hubVNetName')))]",
+      "properties": {
+        "allowVirtualNetworkAccess": true,
+        "allowForwardedTraffic": true,
+        "allowGatewayTransit": false,
+        "useRemoteGateways": false,
+        "remoteVirtualNetwork": {
+          "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubVNetName'))]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetComputeName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+      "apiVersion": "2020-05-01",
+      "name": "[format('{0}/{1}', parameters('hubVNetName'), format('{0}-{1}', parameters('hubVNetName'), parameters('vnetName')))]",
+      "properties": {
+        "allowVirtualNetworkAccess": true,
+        "allowForwardedTraffic": false,
+        "allowGatewayTransit": false,
+        "useRemoteGateways": false,
+        "remoteVirtualNetwork": {
+          "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
         "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetComputeName'))]"
       ]
     },
