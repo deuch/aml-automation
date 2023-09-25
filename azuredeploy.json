@@ -680,9 +680,6 @@
         "serviceEndpoints": "[if(equals(toLower(environment().name), 'azurechinacloud'), variables('serviceEndpointsAzureChinaCloud'), variables('serviceEndpointsAll'))]",
         "networkSecurityGroup": {
           "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
-        },
-        "routeTable": {
-          "id": "[resourceId('Microsoft.Network/routeTables', variables('routeTableName'))]"
         }
       },
       "dependsOn": [
@@ -705,9 +702,6 @@
         "serviceEndpoints": "[if(equals(toLower(environment().name), 'azurechinacloud'), variables('serviceEndpointsAzureChinaCloud'), variables('serviceEndpointsAll'))]",
         "networkSecurityGroup": {
           "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
-        },
-        "routeTable": {
-          "id": "[resourceId('Microsoft.Network/routeTables', variables('routeTableName'))]"
         }
       },
       "dependsOn": [
