@@ -689,8 +689,8 @@
         "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
         "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
         "[resourceId('Microsoft.Network/routeTables', variables('routeTableName'))]",
-        "[resourceId('Microsoft.Network/virtualNetworks/virtualNetworkPeerings', format('{0}-to-hub',parameters('hubVNetName')))]",
-        "[resourceId(parameters('hubVNetResourceGroupName'),'Microsoft.Network/virtualNetworks/virtualNetworkPeerings', format('hub-to-{0}', parameters('vnetName')))]"
+        "[resourceId('Microsoft.Network/virtualNetworks/virtualNetworkPeerings', parameters('vnetName'), format('{0}-to-hub',parameters('hubVNetName')))]",
+        "[resourceId(parameters('hubVNetResourceGroupName'),'Microsoft.Network/virtualNetworks/virtualNetworkPeerings', parameters('hubVNetName'), format('hub-to-{0}', parameters('vnetName')))]"
        
       ]
     },
@@ -712,8 +712,8 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
-        "[resourceId(parameters('hubVNetResourceGroupName'),'Microsoft.Network/virtualNetworks/virtualNetworkPeerings', format('hub-to-{0}', parameters('vnetName')))]",
-        "[resourceId('Microsoft.Network/virtualNetworks/virtualNetworkPeerings', format('{0}-to-hub',parameters('hubVNetName')))]",
+        "[resourceId(parameters('hubVNetResourceGroupName'),'Microsoft.Network/virtualNetworks/virtualNetworkPeerings', parameters('hubVNetName'), format('hub-to-{0}', parameters('vnetName')))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/virtualNetworkPeerings', parameters('vnetName'), format('{0}-to-hub',parameters('hubVNetName')))]",
         "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetComputeName'))]",
         "[resourceId('Microsoft.Network/routeTables', variables('routeTableName'))]"
       ]
