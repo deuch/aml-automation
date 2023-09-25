@@ -493,7 +493,7 @@
     "privateAOAIEndpointSettings": {
       "name": "[format('{0}-PrivateEndpoint-aoai', parameters('workspaceName'))]",
       "properties": {
-        "privateLinkServiceId": "[resourceId('Microsoft.CognitiveServices/accounts', parameters('keyVaultName'))]",
+        "privateLinkServiceId": "[resourceId('Microsoft.CognitiveServices/accounts', parameters('cognitiveServiceName'))]",
         "groupIds": [
           "account"
         ]
@@ -538,7 +538,10 @@
             }
           }
         ]
-      }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
+      ]
     },
     {
       "type": "Microsoft.Network/networkSecurityGroups",
@@ -646,7 +649,10 @@
             }
           }
         ]
-      }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
+      ]
     },
     {
       "condition": "[equals(parameters('vnetOption'), 'new')]",
@@ -674,11 +680,18 @@
         "serviceEndpoints": "[if(equals(toLower(environment().name), 'azurechinacloud'), variables('serviceEndpointsAzureChinaCloud'), variables('serviceEndpointsAll'))]",
         "networkSecurityGroup": {
           "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
+        },
+        "routeTable": {
+          "id": "[resourceId('Microsoft.Network/routeTables', variables('routeTableName'))]"
         }
       },
       "dependsOn": [
         "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
-        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
+        "[resourceId('Microsoft.Network/routeTables', variables('routeTableName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/virtualNetworkPeerings', format('{0}-to-hub',parameters('hubVNetName')))]",
+        "[resourceId(parameters('hubVNetResourceGroupName'),'Microsoft.Network/virtualNetworks/virtualNetworkPeerings', format('hub-to-{0}', parameters('vnetName')))]"
+       
       ]
     },
     {
@@ -692,11 +705,17 @@
         "serviceEndpoints": "[if(equals(toLower(environment().name), 'azurechinacloud'), variables('serviceEndpointsAzureChinaCloud'), variables('serviceEndpointsAll'))]",
         "networkSecurityGroup": {
           "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
+        },
+        "routeTable": {
+          "id": "[resourceId('Microsoft.Network/routeTables', variables('routeTableName'))]"
         }
       },
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
-        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetComputeName'))]"
+        "[resourceId(parameters('hubVNetResourceGroupName'),'Microsoft.Network/virtualNetworks/virtualNetworkPeerings', format('hub-to-{0}', parameters('vnetName')))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/virtualNetworkPeerings', format('{0}-to-hub',parameters('hubVNetName')))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetComputeName'))]",
+        "[resourceId('Microsoft.Network/routeTables', variables('routeTableName'))]"
       ]
     },
     {
@@ -713,8 +732,7 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
-        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetComputeName'))]"
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
       ]
     },
     {
@@ -1287,9 +1305,7 @@
         }
       },
       "dependsOn": [
-        "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
-        "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetPEName'))]",
-        "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetComputeName'))]"
+        "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
       ]
     }
   ]
