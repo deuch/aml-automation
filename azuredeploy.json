@@ -689,7 +689,8 @@
         "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
         "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
         "[resourceId('Microsoft.Network/routeTables', variables('routeTableName'))]",
-        "[resourceId('Microsoft.Network/virtualNetworks/virtualNetworkPeerings', parameters('vnetName'), format('{0}-to-hub',parameters('hubVNetName')))]"
+        "[resourceId('Microsoft.Network/virtualNetworks/virtualNetworkPeerings', parameters('vnetName'), format('{0}-to-hub',parameters('hubVNetName')))]",
+        "nestedTemplate"
        
       ]
     },
@@ -713,7 +714,8 @@
         "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
         "[resourceId('Microsoft.Network/virtualNetworks/virtualNetworkPeerings', parameters('vnetName'), format('{0}-to-hub',parameters('hubVNetName')))]",
         "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetComputeName'))]",
-        "[resourceId('Microsoft.Network/routeTables', variables('routeTableName'))]"
+        "[resourceId('Microsoft.Network/routeTables', variables('routeTableName'))]",
+        "nestedTemplate"
       ]
     },
     {
