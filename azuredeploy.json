@@ -397,7 +397,7 @@
     "vnetId": "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
     "subnetComputeId": "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetComputeName'))]",
     "subnetPEId": "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetPEName'))]",
-    "hubVnetId": "[resourceId(parameters('hubVNetResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('hubVNetName'))]",
+    "hubVNetId": "[resourceId(parameters('hubVNetResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('hubVNetName'))]",
     "privateDnsZoneName": {
       "azureusgovernment": "privatelink.api.ml.azure.us",
       "azurechinacloud": "privatelink.api.ml.azure.cn",
@@ -709,7 +709,7 @@
         "allowGatewayTransit": false,
         "useRemoteGateways": false,
         "remoteVirtualNetwork": {
-          "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubVNetName'))]"
+          "id": "[variables('hubVNetId')]"
         }
       },
       "dependsOn": [
