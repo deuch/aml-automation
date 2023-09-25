@@ -1234,7 +1234,6 @@
         "[resourceId('Microsoft.Network/privateDnsZones', variables('privateAOAIDnsZoneName')[toLower(environment().name)])]",
         "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-aoai', parameters('workspaceName')))]"
       ]
-    },
-
+    }
   ]
 }
