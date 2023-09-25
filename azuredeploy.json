@@ -1242,18 +1242,29 @@
       "resourceGroup": "[parameters('hubVNetResourceGroupName')]",
       "properties": {
         "mode": "Incremental",
+        "parameters": {
+          "vnetName": { 
+            "value" : "[parameters('vnetName')]"
+          },
+          "vnetResourceGroupName": {
+            "value":"[parameters('vnetResourceGroupName')]"
+          },
+          "hubVNetName": {
+            "value": "[parameters('hubVNetName')]"
+          }
+        },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
           "parameters": {
             "vnetName": { 
-              "value" : "[parameters('vnetName')]"
+              "type" : "string"
             },
             "vnetResourceGroupName": {
-              "value":"[parameters('vnetResourceGroupName')]"
+              "type" : "string"
             },
             "hubVNetName": {
-              "value": "[parameters('hubVNetName')]"
+              "type" : "string"
             }
           },
           "variables": {},
