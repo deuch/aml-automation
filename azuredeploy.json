@@ -862,13 +862,17 @@
           }
         },
         "hbiWorkspace": "[parameters('confidential_data')]",
-        "publicNetworkAccess": "Disabled"
+        "publicNetworkAccess": "Enabled"
       },
       "dependsOn": [
         "[resourceId('Microsoft.Insights/components', parameters('applicationInsightsName'))]",
         "[resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName'))]",
         "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
-        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
+        "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups',format('{0}-PrivateEndpoint-blob', parameters('workspaceName')), 'default')]",
+        "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups',format('{0}-PrivateEndpoint-file', parameters('workspaceName')), 'default')]",
+        "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups',format('{0}-PrivateEndpoint-kv', parameters('workspaceName')), 'default')]",
+        "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups',format('{0}-PrivateEndpoint-aoai', parameters('workspaceName')), 'default')]"
       ]
     },
     {
@@ -1170,8 +1174,7 @@
       "dependsOn": [
         "[resourceId('Microsoft.Network/privateDnsZones', variables('privateAznbDnsZoneName')[toLower(environment().name)])]",
         "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneName')[toLower(environment().name)])]",
-        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint', parameters('workspaceName')))]",
-        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-blob', parameters('workspaceName')))]"
+        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint', parameters('workspaceName')))]"
       ]
     },
     {
