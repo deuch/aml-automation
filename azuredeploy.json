@@ -1281,11 +1281,7 @@
                 "remoteVirtualNetwork": {
                   "id": "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
                 }
-              },
-              "dependsOn": [
-                "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
-                "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetComputeName'))]"
-              ]
+              }
             }
           ]
         },
