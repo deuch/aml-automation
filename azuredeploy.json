@@ -702,7 +702,7 @@
     {
       "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
       "apiVersion": "2020-05-01",
-      "name": "[format('{0}/{1}', parameters('vnetName'), format('{0}-{1}', parameters('vnetName'), parameters('hubVNetName')))]",
+      "name": "[format('{0}-to-{1}', parameters('vnetName'), parameters('hubVNetName'))]",
       "properties": {
         "allowVirtualNetworkAccess": true,
         "allowForwardedTraffic": true,
@@ -1272,7 +1272,7 @@
             {
               "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
               "apiVersion": "2020-05-01",
-              "name": "[format('{0}/{1}', parameters('hubVNetName'), format('{0}-{1}', parameters('hubVNetName'), parameters('vnetName')))]",        
+              "name": "[format('{0}-to-{1}', parameters('hubVNetName'), parameters('vnetName'))]",        
               "properties": {
                 "allowVirtualNetworkAccess": true,
                 "allowForwardedTraffic": false,
@@ -1290,8 +1290,7 @@
         "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
         "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetPEName'))]",
         "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetComputeName'))]",
-        "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings', format('{0}/{1}', parameters('vnetName'), format('{0}-{1}', parameters('vnetName'), parameters('hubVNetName'))))]"
-        
+        "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings', format('{0}-to-{1}', parameters('vnetName'), parameters('hubVNetName'))]"
       ]
     }
   ]
