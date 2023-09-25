@@ -80,6 +80,20 @@
         "description": "Determines whether or not a new storage should be provisioned."
       }
     },
+    "cognitiveServiceName": {
+      "type": "string",
+      "defaultValue": "[format('{0}oai{1}', replace(resourceGroup().name,'-',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
+      "metadata": {
+        "description": "Name of the Azure OpenAI account."
+      }
+    },
+    "aoaiSku": {
+      "type": "string",
+      "defaultValue": "S0",
+      "metadata": {
+        "description": "SKU of the Azure OpenAI account."
+      }
+    },
     "storageAccountName": {
       "type": "string",
       "defaultValue": "[format('{0}sa{1}', replace(resourceGroup().name,'-',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
@@ -294,7 +308,7 @@
     },
     "subnetComputePrefix": {
       "type": "string",
-      "defaultValue": "10.0.0.0/24",
+      "defaultValue": "[cidrSubnet(parameters('addressPrefixes'), 24, 0)]",
       "metadata": {
         "description": "Subnet Compute instance prefix of the virtual network"
       }
@@ -308,7 +322,7 @@
     },
     "subnetPEPrefix": {
       "type": "string",
-      "defaultValue": "10.0.1.0/24",
+      "defaultValue": "[cidrSubnet(parameters('addressPrefixes'), 24, 1)]",
       "metadata": {
         "description": "Subnet private endpoint prefix of the virtual network"
       }
@@ -393,6 +407,11 @@
       "azurecloud": "privatelink.notebooks.azure.net",
       "azurechinacloud": "privatelink.notebooks.chinacloudapi.cn"
     },
+    "privateAOAIDnsZoneName": {
+      "azureusgovernment": "privatelink.cognitiveservices.azure.us",
+      "azurecloud": "privatelink.openai.azure.com",
+      "azurechinacloud": ""
+    },
     "enablePE": "[not(equals(parameters('privateEndpointType'), 'none'))]",
     "networkSecurityGroupName" : "[format('{0}-nsg', resourceGroup().name)]",
     "routeTableName": "[format('{0}-rt', resourceGroup().name)]",
@@ -455,10 +474,20 @@
         ]
       }
     },
+    "privateAOAIEndpointSettings": {
+      "name": "[format('{0}-PrivateEndpoint-aoai', parameters('workspaceName'))]",
+      "properties": {
+        "privateLinkServiceId": "[resourceId('Microsoft.CognitiveServices/accounts', parameters('keyVaultName'))]",
+        "groupIds": [
+          "account"
+        ]
+      }
+    },
     "defaultPEConnections": "[array(variables('privateEndpointSettings'))]",
     "blobPEConnections": "[array(variables('privateBlobEndpointSettings'))]",
     "filePEConnections": "[array(variables('privateFileEndpointSettings'))]",
     "KVPEConnections": "[array(variables('privateKVEndpointSettings'))]",
+    "AOAIEConnections": "[array(variables('privateAOAIEndpointSettings'))]",
     "userAssignedIdentities": "[union(variables('userAssignedIdentitiesPrimary'), variables('userAssignedIdentitiesCmk'))]",
     "userAssignedIdentityPrimary": {
       "[format('{0}', variables('primaryUserAssignedIdentity'))]": {}
@@ -740,6 +769,21 @@
       }
     },
     {
+      "type": "Microsoft.CognitiveServices/accounts",
+      "apiVersion": "2021-10-01",
+      "name": "[parameters('cognitiveServiceName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "[parameters('aoaiSku')]"
+      },
+      "kind": "OpenAI",
+      "properties": {
+        "apiProperties": {
+          "statisticsEnabled": false
+        }
+      }
+    },
+    {
       "type": "Microsoft.MachineLearningServices/workspaces",
       "apiVersion": "2022-10-01",
       "name": "[parameters('workspaceName')]",
@@ -851,6 +895,25 @@
       }
     },
     {
+      "condition": "[variables('enablePE')]",
+      "type": "Microsoft.Network/privateEndpoints",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetPEName'))]",
+        "[resourceId('Microsoft.CognitiveServices/accounts', parameters('cognitiveServiceName'))]"
+      ],
+      "apiVersion": "2022-05-01",
+      "name": "[format('{0}-PrivateEndpoint-aoai', parameters('workspaceName'))]",
+      "location": "[parameters('vnetLocation')]",
+      "tags": "[parameters('tagValues')]",
+      "properties": {
+        "privateLinkServiceConnections": "[if(equals(parameters('privateEndpointType'), 'AutoApproval'), variables('AOAIConnections'), json('null'))]",
+        "manualPrivateLinkServiceConnections": "[if(equals(parameters('privateEndpointType'), 'ManualApproval'), variables('AOAIConnections'), json('null'))]",
+        "subnet": {
+          "id": "[variables('subnetPEId')]"
+        }
+      }
+    },
+    {
       "condition": "[equals(parameters('privateEndpointType'), 'AutoApproval')]",
       "type": "Microsoft.Network/privateDnsZones",
       "apiVersion": "2020-06-01",
@@ -908,6 +971,18 @@
       "properties": {},
       "dependsOn": [
         "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-kv', parameters('workspaceName')))]"
+      ]
+    },
+    {
+      "condition": "[equals(parameters('privateEndpointType'), 'AutoApproval')]",
+      "type": "Microsoft.Network/privateDnsZones",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('privateAOAIDnsZoneName')[toLower(environment().name)]]",
+      "location": "global",
+      "tags": "[parameters('tagValues')]",
+      "properties": {},
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-aoai', parameters('workspaceName')))]"
       ]
     },
     {
@@ -1002,6 +1077,24 @@
     },
     {
       "condition": "[equals(parameters('privateEndpointType'), 'AutoApproval')]",
+      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', variables('privateAOAIDnsZoneName')[toLower(environment().name)], uniqueString(variables('vnetId')))]",
+      "location": "global",
+      "tags": "[parameters('tagValues')]",
+      "properties": {
+        "virtualNetwork": {
+          "id": "[variables('vnetId')]"
+        },
+        "registrationEnabled": false
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/privateDnsZones', variables('privateAOAIDnsZoneName')[toLower(environment().name)])]",
+        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-aoai', parameters('workspaceName')))]"
+      ]
+    },
+    {
+      "condition": "[equals(parameters('privateEndpointType'), 'AutoApproval')]",
       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
       "apiVersion": "2022-05-01",
       "name": "[format('{0}/{1}', format('{0}-PrivateEndpoint', parameters('workspaceName')), 'default')]",
@@ -1086,6 +1179,26 @@
       "dependsOn": [
         "[resourceId('Microsoft.Network/privateDnsZones', variables('privateKVDnsZoneName')[toLower(environment().name)])]",
         "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-kv', parameters('workspaceName')))]"
+      ]
+    },
+    {
+      "condition": "[equals(parameters('privateEndpointType'), 'AutoApproval')]",
+      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+      "apiVersion": "2022-05-01",
+      "name": "[format('{0}/{1}', format('{0}-PrivateEndpoint-aoai', parameters('workspaceName')), 'default')]",
+      "properties": {
+        "privateDnsZoneConfigs": [
+          {
+            "name": "privatelink-openai-azure-com",
+            "properties": {
+              "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', variables('privateAOAIDnsZoneName')[toLower(environment().name)])]"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/privateDnsZones', variables('privateAOAIDnsZoneName')[toLower(environment().name)])]",
+        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-aoai', parameters('workspaceName')))]"
       ]
     }
   ]
