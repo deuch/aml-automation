@@ -1284,11 +1284,11 @@
               }
             }
           ]
-        },
-        "dependsOn": [
-          "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
-        ]
-      }
+        }
+      },
+      "dependsOn": [
+        "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
+      ]
     }
   ]
 }
