@@ -702,7 +702,7 @@
     {
       "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
       "apiVersion": "2020-05-01",
-      "name": "spoke-to-hub",
+      "name": "[format('{0}/{1}', parameters('vnetName'), parameters('hubVNetName'))]",
       "properties": {
         "allowVirtualNetworkAccess": true,
         "allowForwardedTraffic": true,
@@ -1272,7 +1272,7 @@
             {
               "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
               "apiVersion": "2020-05-01",
-              "name": "hub-to-spoke2",        
+              "name": "[format('{0}/{1}', parameters('hubVNetName'), parameters('vnetName'))]",        
               "properties": {
                 "allowVirtualNetworkAccess": true,
                 "allowForwardedTraffic": false,
