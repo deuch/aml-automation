@@ -1628,6 +1628,9 @@
           },
           "subnetComputePrefix": {
             "value":"[array(parameters('subnetComputePrefix'))]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
           }
         },
         "template": {
@@ -1642,6 +1645,9 @@
             },
             "subnetComputePrefix": {
               "type" : "array"
+            },
+            "location": {
+              "type": "string"
             }
           },
           "variables": {},
@@ -1649,6 +1655,7 @@
             {
               "type": "Microsoft.Network/ipGroups",
               "apiVersion": "2023-04-01",
+              "location": "[parameters('location')]",
               "name": "[parameters('firewallIPGroupName')]",        
               "properties": {
                 "ipAddresses": "[union(reference(resourceId(parameters('hubVNetResourceGroupName'),'Microsoft.Network/ipGroups', parameters('firewallIPGroupName')),'2023-04-01').ipAddresses, array(parameters('subnetComputePrefix')))]"
