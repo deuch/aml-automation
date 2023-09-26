@@ -1614,7 +1614,6 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "location" : "westeurope",
       "apiVersion": "2021-04-01",
       "name": "ipGroupTemplate",
       "resourceGroup": "[parameters('hubVNetResourceGroupName')]",
