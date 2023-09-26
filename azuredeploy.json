@@ -282,7 +282,7 @@
     },
     "vnetName": {
       "type": "string",
-      "defaultValue": "aml-private-aml-vnet",
+      "defaultValue": "[format('{0]-vnet, resourceGroup().name)]",
       "metadata": {
         "description": "Name of the VNet"
       }
