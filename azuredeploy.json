@@ -282,7 +282,7 @@
     },
     "vnetName": {
       "type": "string",
-      "defaultValue": "[format('{0}-vnet', resourceGroup().name)]",
+      "defaultValue": "aml-private-vnet",
       "metadata": {
         "description": "Name of the VNet"
       }
@@ -789,11 +789,11 @@
         "minimumTlsVersion": "TLS1_2",
         "allowBlobPublicAccess": false,
         "networkAcls": "[if(equals(parameters('storageAccountBehindVNet'), 'true'), variables('networkRuleSetBehindVNet'), json('null'))]"
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetPEName'))]",
-        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetComputeName'))]"
-      ]
+      }//,
+      //"dependsOn": [
+      //  "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetPEName'))]",
+      //  "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetComputeName'))]"
+      //]
     },
     {
       "type": "Microsoft.Network/serviceEndpointPolicies",
