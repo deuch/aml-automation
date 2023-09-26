@@ -82,7 +82,7 @@
     },
     "cognitiveServiceName": {
       "type": "string",
-      "defaultValue": "[format('oai{0}{1}', replace(resourceGroup().name,'-',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
+      "defaultValue": "[format('aoai{0}{1}', replace(resourceGroup().name,'-',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
       "metadata": {
         "description": "Name of the Azure OpenAI account."
       }
@@ -693,6 +693,7 @@
       "properties": {
         "addressPrefix": "[parameters('subnetComputePrefix')]",
         "privateLinkServiceNetworkPolicies": "Enabled",
+        "privateEndpointNetworkPolicies" : "Enabled",
         "serviceEndpoints": "[if(equals(toLower(environment().name), 'azurechinacloud'), variables('serviceEndpointsAzureChinaCloud'), variables('serviceEndpointsAll'))]",
         "networkSecurityGroup": {
           "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
@@ -723,6 +724,7 @@
       "properties": {
         "addressPrefix": "[parameters('subnetPEPrefix')]",
         "privateLinkServiceNetworkPolicies": "Enabled",
+        "privateEndpointNetworkPolicies" : "Enabled",
         "serviceEndpoints": "[if(equals(toLower(environment().name), 'azurechinacloud'), variables('serviceEndpointsAzureChinaCloud'), variables('serviceEndpointsAll'))]",
         "networkSecurityGroup": {
           "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
@@ -873,6 +875,46 @@
       "tags": "[parameters('tagValues')]",
       "properties": {
         "Application_Type": "web"
+      }
+    },
+    {
+      "condition": "[equals(parameters('applicationInsightsOption'), 'new')]",
+      "type": "microsoft.insights/privatelinkscopes",
+      "apiVersion": "2021-07-01-preview",
+      "name": "[format('pls{0}',parameters('applicationInsightsName'))]",
+      "location": "global",
+      "properties": {
+          "accessModeSettings":{
+              "queryAccessMode":"Open",
+              "ingestionAccessMode":"Open"
+          }
+      }
+    },
+    {
+      "condition": "[equals(parameters('applicationInsightsOption'), 'new')]",
+      "type": "microsoft.operationalinsights/workspaces",
+      "apiVersion": "2020-10-01",
+      "name": "[format('wks{0}',parameters('applicationInsightsName'))]",
+      "location": "[variables('appInsightsLocation')]",
+      "properties": {
+          "sku": {
+              "name": "pergb2018"
+          },
+          "publicNetworkAccessForIngestion": "Enabled",
+          "publicNetworkAccessForQuery": "Enabled"
+      }
+    },
+    {
+      "condition": "[equals(parameters('applicationInsightsOption'), 'new')]",
+      "type": "microsoft.insights/privatelinkscopes/scopedresources",
+      "apiVersion": "2019-10-17-preview",
+      "name": "[format('{0}/{1}', format('pls{0}',parameters('applicationInsightsName')), format('wks{0}',parameters('applicationInsightsName')))]",
+      "dependsOn": [
+          "[resourceId('microsoft.insights/privatelinkscopes', format('pls{0}',parameters('applicationInsightsName'))]",
+          "[resourceId('microsoft.operationalinsights/workspaces', format('wks{0}',parameters('applicationInsightsName'))]"
+      ],
+      "properties": {
+          "linkedResourceId": "[resourceId('microsoft.operationalinsights/workspaces', format('wks{0}',parameters('applicationInsightsName')))]"
       }
     },
     {
