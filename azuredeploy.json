@@ -82,7 +82,7 @@
     },
     "cognitiveServiceName": {
       "type": "string",
-      "defaultValue": "[format('{0}oai{1}', replace(resourceGroup().name,'-',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
+      "defaultValue": "[format('oai{0}{1}', replace(resourceGroup().name,'-',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
       "metadata": {
         "description": "Name of the Azure OpenAI account."
       }
@@ -96,7 +96,7 @@
     },
     "storageAccountName": {
       "type": "string",
-      "defaultValue": "[format('{0}sa{1}', replace(resourceGroup().name,'-',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
+      "defaultValue": "[format('sa{0}{1}', replace(resourceGroup().name,'-',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
       "metadata": {
         "description": "Name of the storage account."
       }
@@ -144,7 +144,7 @@
     },
     "keyVaultName": {
       "type": "string",
-      "defaultValue": "[format('{0}kv{1}', replace(resourceGroup().name,'-',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
+      "defaultValue": "[format('kv{0}{1}', replace(resourceGroup().name,'-',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
       "metadata": {
         "description": "Name of the key vault."
       }
@@ -180,7 +180,7 @@
     },
     "applicationInsightsName": {
       "type": "string",
-      "defaultValue": "[format('ai{0}', uniqueString(resourceGroup().id, parameters('workspaceName')))]",
+      "defaultValue": "[format('ai{0}{1}', replace(resourceGroup().name,'-',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
       "metadata": {
         "description": "Name of ApplicationInsights."
       }
@@ -206,7 +206,7 @@
     },
     "containerRegistryName": {
       "type": "string",
-      "defaultValue": "[format('cr{0}', uniqueString(resourceGroup().id, parameters('workspaceName')))]",
+      "defaultValue": "[format('cr{0}{1}', replace(resourceGroup().name,'-',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
       "metadata": {
         "description": "The container registry bind to the workspace."
       }
@@ -429,8 +429,8 @@
       "azurechinacloud": ""
     },
     "enablePE": "[not(equals(parameters('privateEndpointType'), 'none'))]",
-    "networkSecurityGroupName" : "[format('{0}-nsg', resourceGroup().name)]",
-    "routeTableName": "[format('{0}-rt', resourceGroup().name)]",
+    "networkSecurityGroupName" : "[format('nsg-{0}', resourceGroup().name)]",
+    "routeTableName": "[format('rt-{0}', resourceGroup().name)]",
     "networkRuleSetBehindVNet": {
       "defaultAction": "deny",
       "virtualNetworkRules": [
@@ -454,6 +454,7 @@
         "service": "Microsoft.Storage"
       }
     ],
+    "serviceEndpointPolicyName": "[format('sep-{0}', parameters('workspaceName'))]",
     "privateEndpointSettings": {
       "name": "[format('{0}-PrivateEndpoint', parameters('workspaceName'))]",
       "properties": {
@@ -508,6 +509,7 @@
     "userAssignedIdentityPrimary": {
       "[format('{0}', variables('primaryUserAssignedIdentity'))]": {}
     },
+    "computeManagedIdentity": "[format('{0}-mi', parameters('workspaceName'))]",
     "userAssignedIdentitiesPrimary": "[if(not(equals(parameters('primaryUserAssignedIdentityName'), '')), variables('userAssignedIdentityPrimary'), json('{}'))]",
     "primaryUserAssignedIdentity": "[resourceId(parameters('primaryUserAssignedIdentityResourceGroup'), 'Microsoft.ManagedIdentity/userAssignedIdentities', parameters('primaryUserAssignedIdentityName'))]",
     "userAssignedIdentityCmk": {
@@ -542,6 +544,12 @@
       "dependsOn": [
         "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
       ]
+    },
+    {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2023-01-31",
+      "name": "[variables('computeManagedIdentity')]",
+      "location": "[parameters('location')]"
     },
     {
       "type": "Microsoft.Network/networkSecurityGroups",
@@ -767,6 +775,38 @@
         "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetPEName'))]",
         "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetComputeName'))]"
       ]
+    },
+    {
+      "type": "Microsoft.Network/serviceEndpointPolicies",
+      "apiVersion": "2019-08-01",
+      "name": "[parameters('serviceEndpointPolicyName')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+      ],
+      "tags": {},
+      "properties": {
+          "serviceEndpointPolicyDefinitions": [
+              {
+                  "name": "[parameters('storageAccountName')]",
+                  "properties": {
+                      "service": "Microsoft.Storage",
+                      "serviceResources": [
+                        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                      ]
+                  }
+              },
+              {
+                  "name": "[concat(parameters('storageAccountName'), '_Global')]",
+                  "properties": {
+                      "service": "Global",
+                      "serviceResources": [
+                          "/services/Azure/MachineLearning"
+                      ]
+                  }
+              }
+          ]
+      }
     },
     {
       "condition": "[equals(parameters('keyVaultOption'), 'new')]",
