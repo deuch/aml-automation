@@ -282,7 +282,7 @@
     },
     "vnetName": {
       "type": "string",
-      "defaultValue": "aml-private-vnet",
+      "defaultValue": "aml-test-vnet",
       "metadata": {
         "description": "Name of the VNet"
       }
