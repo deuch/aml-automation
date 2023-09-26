@@ -867,6 +867,9 @@
     },
     {
       "condition": "[equals(parameters('applicationInsightsOption'), 'new')]",
+      "dependsOn": [
+        "[resourceId('microsoft.operationalinsights/workspaces', format('wks{0}',parameters('applicationInsightsName')))]"
+      ],
       "type": "Microsoft.Insights/components",
       "apiVersion": "2020-02-02",
       "name": "[parameters('applicationInsightsName')]",
@@ -874,7 +877,8 @@
       "kind": "web",
       "tags": "[parameters('tagValues')]",
       "properties": {
-        "Application_Type": "web"
+        "Application_Type": "web",
+        "WorkspaceResourceId": "[resourceId('microsoft.operationalinsights/workspaces', format('wks{0}',parameters('applicationInsightsName')))]"
       }
     },
     {
