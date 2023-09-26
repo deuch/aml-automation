@@ -238,7 +238,15 @@
         "description": "Determines whether or not to put container registry behind VNet."
       }
     },
-
+    "proxyAddressPrefixesToFilter": {
+      "type": "array",
+      "defaultValue": [
+        "55.55.0.0/16"
+      ],
+      "metadata": {
+        "description": "Proxy Address prefix to filter"
+      }
+    },
     "privateAZFWIP": {
       "type": "string",
       "defaultValue": "10.5.0.4",
