@@ -1651,7 +1651,7 @@
               "apiVersion": "2023-04-01",
               "name": "[parameters('firewallIPGroupName')]",        
               "properties": {
-                "ipAddresses": "[union(reference(resourceId('Microsoft.Network/ipGroups', parameters('firewallIPGroupName'))).ipAddresses,parameters('subnetComputePrefix'))]"
+                "ipAddresses": "[union(reference(resourceId('Microsoft.Network/ipGroups', parameters('firewallIPGroupName')),'2023-04-01', 'Full').ipAddresses,parameters('subnetComputePrefix'))]"
                 }
               }           
             ]
