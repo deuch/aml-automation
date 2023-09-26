@@ -87,7 +87,7 @@
         "description": "Name of the Azure OpenAI account."
       }
     },
-    "aoaiSku": {
+    "azureOpenAISku": {
       "type": "string",
       "defaultValue": "S0",
       "metadata": {
@@ -874,7 +874,7 @@
       "name": "[parameters('cognitiveServiceName')]",
       "location": "[parameters('location')]",
       "sku": {
-        "name": "[parameters('aoaiSku')]"
+        "name": "[parameters('azureOpenAISku')]"
       },
       "kind": "OpenAI",
       "properties": {
