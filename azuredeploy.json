@@ -787,7 +787,7 @@
     {
       "type": "Microsoft.Network/serviceEndpointPolicies",
       "apiVersion": "2019-08-01",
-      "name": "[parameters('serviceEndpointPolicyName')]",
+      "name": "[variables('serviceEndpointPolicyName')]",
       "location": "[parameters('location')]",
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
