@@ -282,7 +282,7 @@
     },
     "vnetName": {
       "type": "string",
-      "defaultValue": "[format('{0}-vnet, resourceGroup().name)]",
+      "defaultValue": "[format('{0}-vnet', resourceGroup().name)]",
       "metadata": {
         "description": "Name of the VNet"
       }
@@ -699,15 +699,20 @@
         },
         "routeTable": {
           "id": "[resourceId('Microsoft.Network/routeTables', variables('routeTableName'))]"
-        }
+        },
+        "serviceEndpointPolicies": [ 
+          {
+            "id": "[resourceId('Microsoft.Network/serviceEndpointPolicies', variables('serviceEndpointPolicyName'))]"
+          } 
+        ]
       },
       "dependsOn": [
         "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
+        "[resourceId('Microsoft.Network/serviceEndpointPolicies', variables('serviceEndpointPolicyName'))]",
         "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
         "[resourceId('Microsoft.Network/routeTables', variables('routeTableName'))]",
         "[resourceId('Microsoft.Network/virtualNetworks/virtualNetworkPeerings', parameters('vnetName'), format('{0}-to-hub',parameters('hubVNetName')))]",
         "nestedTemplate"
-       
       ]
     },
     {
@@ -724,10 +729,16 @@
         },
         "routeTable": {
           "id": "[resourceId('Microsoft.Network/routeTables', variables('routeTableName'))]"
-        }
+        },
+        "serviceEndpointPolicies": [ 
+          {
+            "id": "[resourceId('Microsoft.Network/serviceEndpointPolicies', variables('serviceEndpointPolicyName'))]"
+          } 
+        ]
       },
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
+        "[resourceId('Microsoft.Network/serviceEndpointPolicies', variables('serviceEndpointPolicyName'))]",
         "[resourceId('Microsoft.Network/virtualNetworks/virtualNetworkPeerings', parameters('vnetName'), format('{0}-to-hub',parameters('hubVNetName')))]",
         "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetComputeName'))]",
         "[resourceId('Microsoft.Network/routeTables', variables('routeTableName'))]",
