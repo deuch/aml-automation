@@ -508,11 +508,21 @@
         ]
       }
     },
+    "privateMonEndpointSettings": {
+      "name": "[format('{0}-PrivateEndpoint-mon', parameters('workspaceName'))]",
+      "properties": {
+        "privateLinkServiceId": "[resourceId('microsoft.insights/privatelinkscopes', format('pls{0}', parameters('applicationInsightsName')))]",
+        "groupIds": [
+          "azuremonitor"
+        ]
+      }
+    },
     "defaultPEConnections": "[array(variables('privateEndpointSettings'))]",
     "blobPEConnections": "[array(variables('privateBlobEndpointSettings'))]",
     "filePEConnections": "[array(variables('privateFileEndpointSettings'))]",
     "KVPEConnections": "[array(variables('privateKVEndpointSettings'))]",
-    "AOAIConnections": "[array(variables('privateAOAIEndpointSettings'))]",
+    "AOAIPEConnections": "[array(variables('privateAOAIEndpointSettings'))]",
+    "monPEConnections": "[array(variables('privateMonEndpointSettings'))]",
     "userAssignedIdentities": "[union(variables('userAssignedIdentitiesPrimary'), variables('userAssignedIdentitiesCmk'))]",
     "userAssignedIdentityPrimary": {
       "[format('{0}', variables('primaryUserAssignedIdentity'))]": {}
@@ -1064,8 +1074,27 @@
       "location": "[parameters('vnetLocation')]",
       "tags": "[parameters('tagValues')]",
       "properties": {
-        "privateLinkServiceConnections": "[if(equals(parameters('privateEndpointType'), 'AutoApproval'), variables('AOAIConnections'), json('null'))]",
-        "manualPrivateLinkServiceConnections": "[if(equals(parameters('privateEndpointType'), 'ManualApproval'), variables('AOAIConnections'), json('null'))]",
+        "privateLinkServiceConnections": "[if(equals(parameters('privateEndpointType'), 'AutoApproval'), variables('AOAIPEConnections'), json('null'))]",
+        "manualPrivateLinkServiceConnections": "[if(equals(parameters('privateEndpointType'), 'ManualApproval'), variables('AOAIPEConnections'), json('null'))]",
+        "subnet": {
+          "id": "[variables('subnetPEId')]"
+        }
+      }
+    },
+    {
+      "condition": "[variables('enablePE')]",
+      "type": "Microsoft.Network/privateEndpoints",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetPEName'))]",
+        "[resourceId('Microsoft.Insights/components', parameters('applicationInsightsName'))]"
+      ],
+      "apiVersion": "2022-05-01",
+      "name": "[format('{0}-PrivateEndpoint-mon', parameters('workspaceName'))]",
+      "location": "[parameters('vnetLocation')]",
+      "tags": "[parameters('tagValues')]",
+      "properties": {
+        "privateLinkServiceConnections": "[if(equals(parameters('privateEndpointType'), 'AutoApproval'), variables('monPEConnections'), json('null'))]",
+        "manualPrivateLinkServiceConnections": "[if(equals(parameters('privateEndpointType'), 'ManualApproval'), variables('monPEConnections'), json('null'))]",
         "subnet": {
           "id": "[variables('subnetPEId')]"
         }
@@ -1141,6 +1170,126 @@
       "properties": {},
       "dependsOn": [
         "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-aoai', parameters('workspaceName')))]"
+      ]
+    },
+    {
+      "condition": "[equals(parameters('privateEndpointType'), 'AutoApproval')]",
+      "type": "Microsoft.Network/privateDnsZones",
+      "apiVersion": "2020-06-01",
+      "name": "privatelink.monitor.azure.com",
+      "location": "global",
+      "tags": "[parameters('tagValues')]",
+      "properties": {},
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-mon', parameters('workspaceName')))]"
+      ]
+    },
+    {
+      "condition": "[equals(parameters('privateEndpointType'), 'AutoApproval')]",
+      "type": "Microsoft.Network/privateDnsZones",
+      "apiVersion": "2020-06-01",
+      "name": "privatelink.oms.opinsights.azure.com",
+      "location": "global",
+      "tags": "[parameters('tagValues')]",
+      "properties": {},
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-mon', parameters('workspaceName')))]"
+      ]
+    },
+    {
+      "condition": "[equals(parameters('privateEndpointType'), 'AutoApproval')]",
+      "type": "Microsoft.Network/privateDnsZones",
+      "apiVersion": "2020-06-01",
+      "name": "privatelink.ods.opinsights.azure.com",
+      "location": "global",
+      "tags": "[parameters('tagValues')]",
+      "properties": {},
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-mon', parameters('workspaceName')))]"
+      ]
+    },
+    {
+      "condition": "[equals(parameters('privateEndpointType'), 'AutoApproval')]",
+      "type": "Microsoft.Network/privateDnsZones",
+      "apiVersion": "2020-06-01",
+      "name": "privatelink.agentsvc.azure-automation.net",
+      "location": "global",
+      "tags": "[parameters('tagValues')]",
+      "properties": {},
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-mon', parameters('workspaceName')))]"
+      ]
+    },
+    {
+      "condition": "[equals(parameters('privateEndpointType'), 'AutoApproval')]",
+      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', 'privatelink.monitor.azure.com', uniqueString(variables('vnetId')))]",
+      "location": "global",
+      "tags": "[parameters('tagValues')]",
+      "properties": {
+        "virtualNetwork": {
+          "id": "[variables('vnetId')]"
+        },
+        "registrationEnabled": false
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.monitor.azure.com')]",
+        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-mon', parameters('workspaceName')))]"
+      ]
+    },
+    {
+      "condition": "[equals(parameters('privateEndpointType'), 'AutoApproval')]",
+      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', 'privatelink.oms.opinsights.azure.com', uniqueString(variables('vnetId')))]",
+      "location": "global",
+      "tags": "[parameters('tagValues')]",
+      "properties": {
+        "virtualNetwork": {
+          "id": "[variables('vnetId')]"
+        },
+        "registrationEnabled": false
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.oms.opinsights.azure.com')]",
+        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-mon', parameters('workspaceName')))]"
+      ]
+    },
+    {
+      "condition": "[equals(parameters('privateEndpointType'), 'AutoApproval')]",
+      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', 'privatelink.ods.opinsights.azure.com', uniqueString(variables('vnetId')))]",
+      "location": "global",
+      "tags": "[parameters('tagValues')]",
+      "properties": {
+        "virtualNetwork": {
+          "id": "[variables('vnetId')]"
+        },
+        "registrationEnabled": false
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.ods.opinsights.azure.com')])]",
+        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-mon', parameters('workspaceName')))]"
+      ]
+    },
+    {
+      "condition": "[equals(parameters('privateEndpointType'), 'AutoApproval')]",
+      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', 'privatelink.agentsvc.azure-automation.net', uniqueString(variables('vnetId')))]",
+      "location": "global",
+      "tags": "[parameters('tagValues')]",
+      "properties": {
+        "virtualNetwork": {
+          "id": "[variables('vnetId')]"
+        },
+        "registrationEnabled": false
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.agentsvc.azure-automation.net')]",
+        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-mon', parameters('workspaceName')))]"
       ]
     },
     {
@@ -1356,6 +1505,48 @@
       "dependsOn": [
         "[resourceId('Microsoft.Network/privateDnsZones', variables('privateAOAIDnsZoneName')[toLower(environment().name)])]",
         "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-aoai', parameters('workspaceName')))]"
+      ]
+    },
+    {
+      "condition": "[equals(parameters('privateEndpointType'), 'AutoApproval')]",
+      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+      "apiVersion": "2021-05-01",
+      "name": "[format('{0}/{1}', format('{0}-PrivateEndpoint-mon', parameters('workspaceName')), 'default')]",
+      "location": "[parameters('location')]",
+      "properties": {
+          "privateDnsZoneConfigs": [
+              {
+                  "name": "privatelink-monitor-azure-com",
+                  "properties": {
+                      "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.monitor.azure.com')]"
+                  }
+              },
+              {
+                  "name": "privatelink-oms-opinsights-azure-com",
+                  "properties": {
+                      "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.oms.opinsights.azure.com')]"
+                  }
+              },
+              {
+                  "name": "privatelink-ods-opinsights-azure-com",
+                  "properties": {
+                      "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.ods.opinsights.azure.com')]"
+                  }
+              },
+              {
+                  "name": "privatelink-agentsvc-azure-automation-net",
+                  "properties": {
+                      "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.agentsvc.azure-automation.net')]"
+                  }
+              }
+          ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.monitor.azure.com')]",
+        "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.oms.opinsights.azure.com')]",
+        "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.ods.opinsights.azure.com')]",
+        "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.agentsvc.azure-automation.net')]",
+        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-mon', parameters('workspaceName')))]"
       ]
     },
     {
