@@ -789,7 +789,7 @@
         "minimumTlsVersion": "TLS1_2",
         "allowBlobPublicAccess": false,
         "networkAcls": "[if(equals(parameters('storageAccountBehindVNet'), 'true'), variables('networkRuleSetBehindVNet'), json('null'))]"
-      }
+      },
     },
     {
       "type": "Microsoft.Network/serviceEndpointPolicies",
