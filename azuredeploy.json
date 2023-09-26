@@ -1627,7 +1627,7 @@
             "value":"[parameters('hubVNetResourceGroupName')]"
           },
           "subnetComputePrefix": {
-            "value":"[parameters('subnetComputePrefix')]"
+            "value":"[array(parameters('subnetComputePrefix'))]"
           }
         },
         "template": {
