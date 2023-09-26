@@ -1623,7 +1623,7 @@
           "firewallIPGroupName": { 
             "value" : "[parameters('firewallIPGroupName')]"
           },
-          "firewallIPGroupResourceGroupName": {
+          "hubVNetResourceGroupName": {
             "value":"[parameters('hubVNetResourceGroupName')]"
           },
           "subnetComputePrefix": {
@@ -1637,7 +1637,7 @@
             "firewallIPGroupName": { 
               "type" : "string"
             },
-            "firewallIPGroupResourceGroupName": {
+            "hubVNetResourceGroupName": {
               "type" : "string"
             },
             "subnetComputePrefix": {
@@ -1651,7 +1651,7 @@
               "apiVersion": "2023-04-01",
               "name": "[parameters('firewallIPGroupName')]",        
               "properties": {
-                "ipAddresses": "[union(reference(resourceId(parameters('firewallIPGroupResourceGroupName'),'Microsoft.Network/ipGroups', parameters('firewallIPGroupName')),'2023-04-01', 'Full').ipAddresses,parameters('subnetComputePrefix'))]"
+                "ipAddresses": "[union(reference(resourceId(parameters('hubVNetResourceGroupName'),'Microsoft.Network/ipGroups', parameters('firewallIPGroupName')),'2023-04-01', 'Full').ipAddresses,parameters('subnetComputePrefix'))]"
                 }
               }           
             ]
