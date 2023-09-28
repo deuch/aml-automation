@@ -1020,7 +1020,7 @@
           "computeType": "ComputeInstance",
           "properties": {
               "vmSize": "[parameters('vmSize')]",
-              "subnet": "[parameters('subnetComputeName')]",
+              "subnet": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetComputeName'))]",
               "enableNodePublicIp" : "false",
               "personalComputeInstanceSettings": {
                   "assignedUser": {
