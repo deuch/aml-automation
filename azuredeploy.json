@@ -1008,8 +1008,12 @@
       ]
     },
     {
+      "copy": {
+        "name": "computeInstanceCopy",
+        "count": "[length(parameters('userList'))]"
+      },
       "type": "Microsoft.MachineLearningServices/workspaces/computes",
-      "name": "[concat(parameters('workspaceName'), '/compute-', parameters('userList')[0].userName)]",
+      "name": "[concat(parameters('workspaceName'), '/compute-', parameters('userList')[copyIndex()].userName)]",
       "apiVersion": "2021-07-01",
       "location": "[parameters('location')]",
       "properties": {
@@ -1020,8 +1024,8 @@
               "enableNodePublicIp" : "false",
               "personalComputeInstanceSettings": {
                   "assignedUser": {
-                      "objectId": "[parameters('userList')[0].objectId]",
-                      "tenantId": "[subscription.tenantId()]"
+                      "objectId": "[parameters('userList')[copyIndex()].objectId]",
+                      "tenantId": "[subscription().tenantId]"
                   }
               }
           }
