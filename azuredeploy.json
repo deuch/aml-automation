@@ -22,6 +22,12 @@
         "description": "Specifies the location for workspace."
       }
     },
+    "userList" : {
+      "type": "array",
+      "metadata": {
+        "description": "List of user for compute creation"
+      }
+    },
     "identityType": {
       "type": "string",
       "defaultValue": "systemAssigned",
@@ -992,6 +998,29 @@
         "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups',format('{0}-PrivateEndpoint-file', parameters('workspaceName')), 'default')]",
         "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups',format('{0}-PrivateEndpoint-kv', parameters('workspaceName')), 'default')]",
         "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups',format('{0}-PrivateEndpoint-aoai', parameters('workspaceName')), 'default')]"
+      ]
+    },
+    {
+      "type": "Microsoft.MachineLearningServices/workspaces/computes",
+      "name": "[concat(parameters('workspaceName'), '/compute-', parameters('userList')[0].userName)]",
+      "apiVersion": "2021-07-01",
+      "location": "[parameters('location')]",
+      "properties": {
+          "computeType": "ComputeInstance",
+          "properties": {
+              "vmSize": "[parameters('vmSize')]",
+              "subnet": "[parameters('subnetComputeName')]",
+              "personalComputeInstanceSettings": {
+                  "assignedUser": {
+                      "objectId": "[parameters('userList')[0].objectId]",
+                      "tenantId": "[subscription.tenantId()]"
+                  }
+              }
+          }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.MachineLearningServices/workspaces', parameters('workspaceName'))]",
+        "ipGroupTemplate"
       ]
     },
     {
