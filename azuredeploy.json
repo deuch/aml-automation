@@ -28,6 +28,13 @@
         "description": "List of user for compute creation"
       }
     },
+    "vmSize" : {
+      "type": "string",
+      "defaultValue": "Standard_DS11_v2",
+      "metadata": {
+        "description": "SKU for the VM"
+      }
+    },
     "identityType": {
       "type": "string",
       "defaultValue": "systemAssigned",
@@ -1010,6 +1017,7 @@
           "properties": {
               "vmSize": "[parameters('vmSize')]",
               "subnet": "[parameters('subnetComputeName')]",
+              "enableNodePublicIp" : "false",
               "personalComputeInstanceSettings": {
                   "assignedUser": {
                       "objectId": "[parameters('userList')[0].objectId]",
