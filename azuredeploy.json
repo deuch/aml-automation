@@ -1711,18 +1711,20 @@
               "sku": {
                 "name": "[parameters('storageAccountType')]"
               },
-              "networkAcls": {
-                "defaultAction" : "deny",
-                "copy": [
-                  {
-                    "name": "ipRules",
-                    "count": "[length(parameters('proxyAddressPrefixesToFilter'))]",
-                    "input": {
-                      "action" : "Allow",
-                      "value": "[parameters('proxyAddressPrefixesToFilter')[copyIndex('ipRules')]]"
-                    }
-                  }            
-                ]
+              "properties": {
+                "networkAcls": {
+                  "defaultAction" : "deny",
+                  "copy": [
+                    {
+                      "name": "ipRules",
+                      "count": "[length(parameters('proxyAddressPrefixesToFilter'))]",
+                      "input": {
+                        "action" : "Allow",
+                        "value": "[parameters('proxyAddressPrefixesToFilter')[copyIndex('ipRules')]]"
+                      }
+                    }              
+                  ]
+                }
               }
             }
           ]
@@ -1750,7 +1752,7 @@
             "value":"[array(parameters('subnetComputePrefix'))]"
           },
           "location": {
-            "value": "[parameters('location')]"
+            "value": "westeurope"
           }
         },
         "template": {
@@ -1775,7 +1777,7 @@
             {
               "type": "Microsoft.Network/ipGroups",
               "apiVersion": "2023-04-01",
-              "location": "[parameters('location')]",
+              "location": "westeurope",
               "name": "[parameters('firewallIPGroupName')]",        
               "properties": {
                 "ipAddresses": "[union(reference(resourceId(parameters('hubVNetResourceGroupName'),'Microsoft.Network/ipGroups', parameters('firewallIPGroupName')),'2023-04-01').ipAddresses, array(parameters('subnetComputePrefix')))]"
