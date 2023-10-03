@@ -1667,6 +1667,64 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2021-04-01",
+      "name": "networkAclTemplate",
+      "properties": {
+        "mode": "Incremental",
+        "parameters": {
+          "storageAccountName": { 
+            "value" : "parameters('storageAccountName'))"
+          },
+          "proxyAddressPrefixesToFilter": {
+            "value":"[parameters('proxyAddressPrefixesToFilter')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "storageAccountName": { 
+              "type" : "string"
+            },
+            "proxyAddressPrefixesToFilter": {
+              "type" : "array"
+            },
+            "location": {
+              "type": "string"
+            }
+          },
+          "variables": {},
+          "resources": [
+            {
+              "type": "Microsoft.Storage/storageAccounts",
+              "apiVersion": "2022-05-01",
+              "name": "[parameters('storageAccountName')]",        
+              "networkAcls": {
+                "defaultAction" : "deny",
+                "copy": [
+                  {
+                    "name": "ipRules",
+                    "count": "[length(parameters('proxyAddressPrefixesToFilter'))]",
+                    "input": {
+                      "action" : "Allow",
+                      "value": "[parameters('proxyAddressPrefixesToFilter')[copyIndex('ipRules')]]"
+                    }
+                  }            
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.MachineLearningServices/workspaces', parameters('workspaceName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2021-04-01",
       "name": "ipGroupTemplate",
       "resourceGroup": "[parameters('hubVNetResourceGroupName')]",
       "properties": {
