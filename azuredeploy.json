@@ -473,6 +473,16 @@
         }
       ]
     },
+    "virtualNetworkRules": [
+      {
+        "action": "Allow",
+        "id": "[variables('subnetComputeId')]"
+      },
+      {
+        "action": "Allow",
+        "id": "[variables('subnetPEId')]"
+      }
+    ],
     "serviceEndpointsAll": [
       {
         "service": "Microsoft.Storage"
@@ -821,7 +831,20 @@
         "supportsHttpsTrafficOnly": true,
         "minimumTlsVersion": "TLS1_2",
         "allowBlobPublicAccess": false,
-        "networkAcls": "[if(equals(parameters('storageAccountBehindVNet'), 'true'), variables('networkRuleSetBehindVNet'), json('null'))]"
+        "networkAcls": {
+          "defaultAction" : "deny",
+          "virtualNetworkRules": "[variables('virtualNetworkRules')]",        
+          "copy": [
+            {
+               "name": "ipRules",
+              "count": "[length(parameters('proxyAddressPrefixesToFilter'))]",
+              "input": {
+                "action" : "Allow",
+                "value": "[parameters('proxyAddressPrefixesToFilter')[copyIndex('ipRules')]]"
+              }
+            }            
+          ]
+        }
       }
     },
     {
@@ -1707,71 +1730,6 @@
             ]
         }
       }
-    },
-    {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2021-04-01",
-      "name": "networkAclTemplate",
-      "resourceGroup": "[resourceGroup().name]",
-      "properties": {
-        "mode": "Incremental",
-        "parameters": {
-          "storageAccountName": { 
-            "value" : "[parameters('storageAccountName')]"
-          },
-          "storageAccountBehindVNet": { 
-            "value" : "[parameters('storageAccountBehindVNet')]"
-          },
-          "proxyAddressPrefixesToFilter": {
-            "value":"[parameters('proxyAddressPrefixesToFilter')]"
-          },
-          "location": {
-            "value": "[parameters('location')]"
-          }
-        },
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "contentVersion": "1.0.0.0",
-          "parameters": {
-            "storageAccountName": { 
-              "type" : "string"
-            },
-            "storageAccountBehindVNet": { 
-              "type" : "bool"
-            },
-            "proxyAddressPrefixesToFilter": {
-              "type" : "array"
-            },
-            "location": {
-              "type": "string"
-            }
-          },
-          "variables": {},
-          "resources": [
-            {
-            "condition": "[equals(parameters('storageAccountOption'), 'new')]",
-            "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2022-05-01",
-            "name": "[parameters('storageAccountName')]",
-            "location": "[parameters('location')]",
-            "networkAcls": "[if(equals(parameters('storageAccountBehindVNet'), 'true'), parameters('networkRuleSetBehindVNet'), json('null'))]",
-            "copy": [
-              {
-                "name": "ipRules",
-                "count": "[length(parameters('proxyAddressPrefixesToFilter'))]",
-                "input": {
-                  "action" : "Allow",
-                  "value": "[parameters('proxyAddressPrefixesToFilter')[copyIndex('ipRules')]]"
-                }
-              }
-            ]
-            }         
-          ]
-        }
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.MachineLearningServices/workspaces', parameters('workspaceName'))]"
-      ]
     }
   ]
 }
