@@ -833,7 +833,6 @@
         "allowBlobPublicAccess": false,
         "networkAcls": {
           "defaultAction" : "deny",
-          "virtualNetworkRules": "[variables('virtualNetworkRules')]",        
           "copy": [
             {
                "name": "ipRules",
