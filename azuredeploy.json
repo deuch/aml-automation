@@ -1022,7 +1022,7 @@
         "count": "[length(parameters('userList'))]"
       },
       "type": "Microsoft.MachineLearningServices/workspaces/computes",
-      "name": "[concat(parameters('workspaceName'), '/compute-', parameters('userList')[copyIndex()].userName)]",
+      "name": "[format('{0}/compute-{1}{2}', parameters('workspaceName'), parameters('userList')[copyIndex()].userName, substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
       "apiVersion": "2021-07-01",
       "location": "[parameters('location')]",
       "properties": {
