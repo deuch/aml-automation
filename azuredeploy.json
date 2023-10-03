@@ -1667,8 +1667,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2021-04-01",
-      "name": "nestedTemplate",
-      "resourceGroup": "[parameters('hubVNetResourceGroupName')]",
+      "name": "networkAclTemplate",
       "properties": {
         "mode": "Incremental",
         "parameters": {
@@ -1692,7 +1691,7 @@
             "proxyAddressPrefixesToFilter": {
               "type" : "array"
             },
-            "hubVNetName": {
+            "location": {
               "type": "string"
             }
           },
