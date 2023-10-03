@@ -1758,7 +1758,7 @@
             "copy": [
               {
                 "name": "ipRules",
-                "count": "[lenght(parameters('proxyAddressPrefixesToFilter'))]",
+                "count": "[length(parameters('proxyAddressPrefixesToFilter'))]",
                 "input": {
                   "action" : "Allow",
                   "value": "[parameters('proxyAddressPrefixesToFilter')[copyIndex('ipRules')]]"
