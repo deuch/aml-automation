@@ -1758,10 +1758,10 @@
             "copy": [
               {
                 "name": "ipRules",
-                "count": "[parameters('proxyAddressPrefixesToFilter')]",
+                "count": "[lenght(parameters('proxyAddressPrefixesToFilter'))]",
                 "input": {
                   "action" : "Allow",
-                  "value": "[copyIndex('ipRules')]"
+                  "value": "[parameters('proxyAddressPrefixesToFilter')[copyIndex('ipRules')]]"
                 }
               }
             ]
