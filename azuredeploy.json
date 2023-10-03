@@ -1674,6 +1674,9 @@
           "storageAccountName": { 
             "value" : "parameters('storageAccountName'))"
           },
+          "storageAccountType": { 
+            "value" : "parameters('storageAccountType'))"
+          },
           "proxyAddressPrefixesToFilter": {
             "value":"[parameters('proxyAddressPrefixesToFilter')]"
           },
@@ -1688,6 +1691,9 @@
             "storageAccountName": { 
               "type" : "string"
             },
+            "storageAccountType": { 
+              "type" : "string"
+            },
             "proxyAddressPrefixesToFilter": {
               "type" : "array"
             },
@@ -1700,7 +1706,11 @@
             {
               "type": "Microsoft.Storage/storageAccounts",
               "apiVersion": "2022-05-01",
-              "name": "[parameters('storageAccountName')]",        
+              "name": "[parameters('storageAccountName')]",
+              "location": "[parameters('location')]",  
+              "sku": {
+                "name": "[parameters('storageAccountType')]"
+              },
               "networkAcls": {
                 "defaultAction" : "deny",
                 "copy": [
@@ -1765,7 +1775,7 @@
             {
               "type": "Microsoft.Network/ipGroups",
               "apiVersion": "2023-04-01",
-              "location": "westeurope",
+              "location": "[parameters('location')]",
               "name": "[parameters('firewallIPGroupName')]",        
               "properties": {
                 "ipAddresses": "[union(reference(resourceId(parameters('hubVNetResourceGroupName'),'Microsoft.Network/ipGroups', parameters('firewallIPGroupName')),'2023-04-01').ipAddresses, array(parameters('subnetComputePrefix')))]"
