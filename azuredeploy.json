@@ -1680,6 +1680,12 @@
           "proxyAddressPrefixesToFilter": {
             "value":"[parameters('proxyAddressPrefixesToFilter')]"
           },
+          "tenantId" : {
+            "value": "[variables('tenantId')]"
+          },
+          "workspaceId": {
+            "value": "[resourceId('Microsoft.MachineLearningServices/workspaces', parameters('workspaceName'))]"
+          },
           "location": {
             "value": "[parameters('location')]"
           }
@@ -1696,6 +1702,12 @@
             },
             "proxyAddressPrefixesToFilter": {
               "type" : "array"
+            },
+            "tenantId": { 
+              "type" : "string"
+            },
+            "workspaceId": { 
+              "type" : "string"
             },
             "location": {
               "type": "string"
@@ -1723,6 +1735,12 @@
                         "value": "[parameters('proxyAddressPrefixesToFilter')[copyIndex('ipRules')]]"
                       }
                     }              
+                  ],
+                  "resourceAccessRules": [
+                    {
+                      "resourceId": "[parameters('workspaceId')]",
+                      "tenantId": "[parameters('tenantId')]"
+                    }
                   ]
                 }
               }
