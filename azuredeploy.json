@@ -1681,7 +1681,7 @@
             "value":"[parameters('proxyAddressPrefixesToFilter')]"
           },
           "tenantId" : {
-            "value": "[variables('tenantId')]"
+            "value": "[subscription().tenantId]"
           },
           "workspaceId": {
             "value": "[resourceId('Microsoft.MachineLearningServices/workspaces', parameters('workspaceName'))]"
@@ -1739,7 +1739,7 @@
                   "resourceAccessRules": [
                     {
                       "resourceId": "[resourceId('Microsoft.MachineLearningServices/workspaces', parameters('workspaceName'))]",
-                      "tenantId": "[parameters('tenantId')]"
+                      "tenantId": "[subscription().tenantId]"
                     }
                   ]
                 }
