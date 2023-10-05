@@ -34,220 +34,58 @@
         "description": "SKU for the VM"
       }
     },
-    "identityType": {
-      "type": "string",
-      "defaultValue": "systemAssigned",
-      "allowedValues": [
-        "systemAssigned",
-        "userAssigned",
-        "systemAssigned,userAssigned"
-      ],
-      "metadata": {
-        "description": "Specifies the identity type of the Azure Machine Learning workspace."
-      }
-    },
-    "primaryUserAssignedIdentityResourceGroup": {
-      "type": "string",
-      "defaultValue": "[resourceGroup().name]",
-      "metadata": {
-        "description": "Specifies the resource group of user assigned identity that represents the Azure Machine Learing workspace."
-      }
-    },
-    "primaryUserAssignedIdentityName": {
-      "type": "string",
-      "defaultValue": "",
-      "metadata": {
-        "description": "Specifies the name of user assigned identity that represents the Azure Machine Learing    workspace."
-      }
-    },
-    "cmkUserAssignedIdentityResourceGroup": {
-      "type": "string",
-      "defaultValue": "[resourceGroup().name]",
-      "metadata": {
-        "description": "Specifies the resource group of user assigned identity that needs to be used to access the key for encryption."
-      }
-    },
-    "cmkUserAssignedIdentityName": {
-      "type": "string",
-      "defaultValue": "",
-      "metadata": {
-        "description": "Specifies the name of user assigned identity that needs to be used to access the key for encryption."
-      }
-    },
-    "tagValues": {
-      "type": "object",
-      "defaultValue": {},
-      "metadata": {
-        "description": "Tags for workspace, will also be populated if provisioning new dependent resources."
-      }
-    },
-    "storageAccountOption": {
+    "vnetOption": {
       "type": "string",
       "defaultValue": "new",
-      "allowedValues": [
-        "new",
-        "existing"
-      ],
-      "metadata": {
-        "description": "Determines whether or not a new storage should be provisioned."
-      }
-    },
-    "cognitiveServiceName": {
-      "type": "string",
-      "defaultValue": "[format('aoai{0}{1}', replace(resourceGroup().name,'-',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
-      "metadata": {
-        "description": "Name of the Azure OpenAI account."
-      }
-    },
-    "azureOpenAISku": {
-      "type": "string",
-      "defaultValue": "S0",
-      "metadata": {
-        "description": "SKU of the Azure OpenAI account."
-      }
-    },
-    "storageAccountName": {
-      "type": "string",
-      "defaultValue": "[format('sa{0}{1}', replace(resourceGroup().name,'-',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
-      "metadata": {
-        "description": "Name of the storage account."
-      }
-    },
-    "storageAccountType": {
-      "type": "string",
-      "defaultValue": "Standard_LRS",
-      "allowedValues": [
-        "Standard_LRS",
-        "Standard_GRS",
-        "Standard_RAGRS",
-        "Standard_ZRS",
-        "Standard_GZRS",
-        "Standard_RAGZRS"
-      ]
-    },
-    "storageAccountBehindVNet": {
-      "type": "string",
-      "defaultValue": "false",
-      "allowedValues": [
-        "true",
-        "false"
-      ],
-      "metadata": {
-        "description": "Determines whether or not to put the storage account behind VNet"
-      }
-    },
-    "storageAccountResourceGroupName": {
-      "type": "string",
-      "defaultValue": "[resourceGroup().name]",
-      "metadata": {
-        "description": "Resource group name of the storage account if using existing one"
-      }
-    },
-    "keyVaultOption": {
-      "type": "string",
-      "defaultValue": "new",
-      "allowedValues": [
-        "new",
-        "existing"
-      ],
-      "metadata": {
-        "description": "Determines whether or not a new key vault should be provisioned."
-      }
-    },
-    "keyVaultName": {
-      "type": "string",
-      "defaultValue": "[format('kv{0}{1}', replace(resourceGroup().name,'-',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
-      "metadata": {
-        "description": "Name of the key vault."
-      }
-    },
-    "keyVaultBehindVNet": {
-      "type": "string",
-      "defaultValue": "false",
-      "allowedValues": [
-        "true",
-        "false"
-      ],
-      "metadata": {
-        "description": "Determines whether or not to put the storage account behind VNet"
-      }
-    },
-    "keyVaultResourceGroupName": {
-      "type": "string",
-      "defaultValue": "[resourceGroup().name]",
-      "metadata": {
-        "description": "Resource group name of the key vault if using existing one"
-      }
-    },
-    "applicationInsightsOption": {
-      "type": "string",
-      "defaultValue": "new",
-      "allowedValues": [
-        "new",
-        "existing"
-      ],
-      "metadata": {
-        "description": "Determines whether or not new ApplicationInsights should be provisioned."
-      }
-    },
-    "applicationInsightsName": {
-      "type": "string",
-      "defaultValue": "[format('ai{0}{1}', replace(resourceGroup().name,'-',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
-      "metadata": {
-        "description": "Name of ApplicationInsights."
-      }
-    },
-    "applicationInsightsResourceGroupName": {
-      "type": "string",
-      "defaultValue": "[resourceGroup().name]",
-      "metadata": {
-        "description": "Resource group name of the application insights if using existing one."
-      }
-    },
-    "containerRegistryOption": {
-      "type": "string",
-      "defaultValue": "none",
       "allowedValues": [
         "new",
         "existing",
         "none"
       ],
       "metadata": {
-        "description": "Determines whether or not a new container registry should be provisioned."
+        "description": "Determines whether or not a new VNet should be provisioned."
       }
     },
-    "containerRegistryName": {
+    "vnetName": {
       "type": "string",
-      "defaultValue": "[format('cr{0}{1}', replace(resourceGroup().name,'-',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
+      "defaultValue": "[format('{0}-vnet', resourceGroup().name)]",
       "metadata": {
-        "description": "The container registry bind to the workspace."
+        "description": "Name of the VNet"
       }
     },
-    "containerRegistrySku": {
-      "type": "string",
-      "defaultValue": "Standard",
-      "allowedValues": [
-        "Basic",
-        "Standard",
-        "Premium"
-      ]
-    },
-    "containerRegistryResourceGroupName": {
-      "type": "string",
-      "defaultValue": "[resourceGroup().name]",
-      "metadata": {
-        "description": "Resource group name of the container registry if using existing one."
-      }
-    },
-    "containerRegistryBehindVNet": {
-      "type": "string",
-      "defaultValue": "false",
-      "allowedValues": [
-        "true",
-        "false"
+    "addressPrefixes": {
+      "type": "array",
+      "defaultValue": [
+        "10.0.0.0/16"
       ],
       "metadata": {
-        "description": "Determines whether or not to put container registry behind VNet."
+        "description": "Address prefix of the virtual network"
+      }
+    },
+    "subnetOption": {
+      "type": "string",
+      "defaultValue": "new",
+      "allowedValues": [
+        "new",
+        "existing",
+        "none"
+      ],
+      "metadata": {
+        "description": "Determines whether or not a new subnets should be provisioned."
+      }
+    },
+    "subnetComputeName": {
+      "type": "string",
+      "defaultValue": "aml_compute",
+      "metadata": {
+        "description": "Name of the subnet for Compute Instance"
+      }
+    },
+    "subnetPEName": {
+      "type": "string",
+      "defaultValue": "pe",
+      "metadata": {
+        "description": "Name of the subnet for Private Endpoints"
       }
     },
     "proxyAddressPrefixesToFilter": {
@@ -287,67 +125,6 @@
         "description": "IP Group used by the Firewall"
       }
     },
-    "vnetOption": {
-      "type": "string",
-      "defaultValue": "new",
-      "allowedValues": [
-        "new",
-        "existing",
-        "none"
-      ],
-      "metadata": {
-        "description": "Determines whether or not a new VNet should be provisioned."
-      }
-    },
-    "vnetName": {
-      "type": "string",
-      "defaultValue": "[format('{0}-vnet', resourceGroup().name)]",
-      "metadata": {
-        "description": "Name of the VNet"
-      }
-    },
-    "vnetResourceGroupName": {
-      "type": "string",
-      "defaultValue": "[resourceGroup().name]",
-      "metadata": {
-        "description": "Resource group name of the VNET if using existing one."
-      }
-    },
-    "vnetLocation": {
-      "type": "string",
-      "defaultValue": "[resourceGroup().location]",
-      "metadata": {
-        "description": "Required if existing VNET location differs from workspace location"
-      }
-    },
-    "addressPrefixes": {
-      "type": "array",
-      "defaultValue": [
-        "10.0.0.0/16"
-      ],
-      "metadata": {
-        "description": "Address prefix of the virtual network"
-      }
-    },
-    "subnetOption": {
-      "type": "string",
-      "defaultValue": "new",
-      "allowedValues": [
-        "new",
-        "existing",
-        "none"
-      ],
-      "metadata": {
-        "description": "Determines whether or not a new subnets should be provisioned."
-      }
-    },
-    "subnetComputeName": {
-      "type": "string",
-      "defaultValue": "aml_compute",
-      "metadata": {
-        "description": "Name of the subnet for Compute Instance"
-      }
-    },
     "subnetComputePrefix": {
       "type": "string",
       "defaultValue": "[cidrSubnet(first(parameters('addressPrefixes')), 24, 0)]",
@@ -355,18 +132,141 @@
         "description": "Subnet Compute instance prefix of the virtual network"
       }
     },
-    "subnetPEName": {
-      "type": "string",
-      "defaultValue": "pe",
-      "metadata": {
-        "description": "Name of the subnet for Private Endpoints"
-      }
-    },
     "subnetPEPrefix": {
       "type": "string",
       "defaultValue": "[cidrSubnet(first(parameters('addressPrefixes')), 24, 1)]",
       "metadata": {
         "description": "Subnet private endpoint prefix of the virtual network"
+      }
+    },
+    "storageAccountOption": {
+      "type": "string",
+      "defaultValue": "new",
+      "allowedValues": [
+        "new",
+        "existing"
+      ],
+      "metadata": {
+        "description": "Determines whether or not a new storage should be provisioned."
+      }
+    },
+    "storageAccountName": {
+      "type": "string",
+      "defaultValue": "[format('sa{0}{1}', replace(resourceGroup().name,'-',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
+      "metadata": {
+        "description": "Name of the storage account."
+      }
+    },
+    "storageAccountType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_GRS",
+        "Standard_RAGRS",
+        "Standard_ZRS",
+        "Standard_GZRS",
+        "Standard_RAGZRS"
+      ]
+    },
+    "cognitiveServiceName": {
+      "type": "string",
+      "defaultValue": "[format('aoai{0}{1}', replace(resourceGroup().name,'-',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
+      "metadata": {
+        "description": "Name of the Azure OpenAI account."
+      }
+    },
+    "azureOpenAISku": {
+      "type": "string",
+      "defaultValue": "S0",
+      "metadata": {
+        "description": "SKU of the Azure OpenAI account."
+      }
+    },
+    "keyVaultOption": {
+      "type": "string",
+      "defaultValue": "new",
+      "allowedValues": [
+        "new",
+        "existing"
+      ],
+      "metadata": {
+        "description": "Determines whether or not a new key vault should be provisioned."
+      }
+    },
+    "keyVaultName": {
+      "type": "string",
+      "defaultValue": "[format('kv{0}{1}', replace(resourceGroup().name,'-',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
+      "metadata": {
+        "description": "Name of the key vault."
+      }
+    },
+    "keyVaultBehindVNet": {
+      "type": "string",
+      "defaultValue": "false",
+      "allowedValues": [
+        "true",
+        "false"
+      ],
+      "metadata": {
+        "description": "Determines whether or not to put the storage account behind VNet"
+      }
+    },
+    "applicationInsightsOption": {
+      "type": "string",
+      "defaultValue": "new",
+      "allowedValues": [
+        "new",
+        "existing"
+      ],
+      "metadata": {
+        "description": "Determines whether or not new ApplicationInsights should be provisioned."
+      }
+    },
+    "applicationInsightsName": {
+      "type": "string",
+      "defaultValue": "[format('ai{0}{1}', replace(resourceGroup().name,'-',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
+      "metadata": {
+        "description": "Name of ApplicationInsights."
+      }
+    },
+    "containerRegistryOption": {
+      "type": "string",
+      "defaultValue": "none",
+      "allowedValues": [
+        "new",
+        "existing",
+        "none"
+      ],
+      "metadata": {
+        "description": "Determines whether or not a new container registry should be provisioned."
+      }
+    },
+    "containerRegistryName": {
+      "type": "string",
+      "defaultValue": "[format('cr{0}{1}', replace(resourceGroup().name,'-',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
+      "metadata": {
+        "description": "The container registry bind to the workspace."
+      }
+    },
+    "containerRegistrySku": {
+      "type": "string",
+      "defaultValue": "Standard",
+      "allowedValues": [
+        "Basic",
+        "Standard",
+        "Premium"
+      ]
+    },
+    "containerRegistryBehindVNet": {
+      "type": "string",
+      "defaultValue": "false",
+      "allowedValues": [
+        "true",
+        "false"
+      ],
+      "metadata": {
+        "description": "Determines whether or not to put container registry behind VNet."
       }
     },
     "confidential_data": {
@@ -413,17 +313,66 @@
         "ManualApproval",
         "none"
       ]
+    },
+    "identityType": {
+      "type": "string",
+      "defaultValue": "systemAssigned",
+      "allowedValues": [
+        "systemAssigned",
+        "userAssigned",
+        "systemAssigned,userAssigned"
+      ],
+      "metadata": {
+        "description": "Specifies the identity type of the Azure Machine Learning workspace."
+      }
+    },
+    "primaryUserAssignedIdentityResourceGroup": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]",
+      "metadata": {
+        "description": "Specifies the resource group of user assigned identity that represents the Azure Machine Learing workspace."
+      }
+    },
+    "primaryUserAssignedIdentityName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Specifies the name of user assigned identity that represents the Azure Machine Learing    workspace."
+      }
+    },
+    "cmkUserAssignedIdentityResourceGroup": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]",
+      "metadata": {
+        "description": "Specifies the resource group of user assigned identity that needs to be used to access the key for encryption."
+      }
+    },
+    "cmkUserAssignedIdentityName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Specifies the name of user assigned identity that needs to be used to access the key for encryption."
+      }
+    },
+    "tagValues": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Tags for workspace, will also be populated if provisioning new dependent resources."
+      }
     }
   },
   "variables": {
     "tenantId": "[subscription().tenantId]",
-    "storageAccountId": "[resourceId(parameters('storageAccountResourceGroupName'), 'Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
-    "keyVaultId": "[resourceId(parameters('keyVaultResourceGroupName'), 'Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
-    "containerRegistryId": "[resourceId(parameters('containerRegistryResourceGroupName'), 'Microsoft.ContainerRegistry/registries', parameters('containerRegistryName'))]",
-    "applicationInsightId": "[resourceId(parameters('applicationInsightsResourceGroupName'), 'Microsoft.Insights/components', parameters('applicationInsightsName'))]",
-    "vnetId": "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
-    "subnetComputeId": "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetComputeName'))]",
-    "subnetPEId": "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetPEName'))]",
+    "storageAccountId": "[resourceId(resourceGroup().name, 'Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
+    "keyVaultId": "[resourceId(resourceGroup().name, 'Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
+    "containerRegistryId": "[resourceId(resourceGroup().name, 'Microsoft.ContainerRegistry/registries', parameters('containerRegistryName'))]",
+    "applicationInsightId": "[resourceId(resourceGroup().name, 'Microsoft.Insights/components', parameters('applicationInsightsName'))]",
+    "vnetResourceGroupName": "[resourceGroup().name]",
+    "vnetLocation": "[resourceGroup().location]",
+    "vnetId": "[resourceId(variables('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
+    "subnetComputeId": "[resourceId(variables('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetComputeName'))]",
+    "subnetPEId": "[resourceId(variables('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetPEName'))]",
     "hubVNetId": "[resourceId(parameters('hubVNetResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('hubVNetName'))]",
     "ipGroupId": "[resourceId(parameters('hubVNetResourceGroupName'), 'Microsoft.Network/ipGroups', parameters('firewallIPGroupName'))]",
     "privateDnsZoneName": {
@@ -1625,7 +1574,7 @@
             "value" : "[parameters('vnetName')]"
           },
           "vnetResourceGroupName": {
-            "value":"[parameters('vnetResourceGroupName')]"
+            "value":"[variables('vnetResourceGroupName')]"
           },
           "hubVNetName": {
             "value": "[parameters('hubVNetName')]"
@@ -1657,7 +1606,7 @@
                 "allowGatewayTransit": false,
                 "useRemoteGateways": false,
                 "remoteVirtualNetwork": {
-                  "id": "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
+                  "id": "[resourceId(variables('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
                 }
               }
             }
@@ -1665,7 +1614,7 @@
         }
       },
       "dependsOn": [
-        "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
+        "[resourceId(variables('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
       ]
     },
     {
