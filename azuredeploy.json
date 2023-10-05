@@ -90,16 +90,12 @@
     },
     "proxyAddressPrefixesToFilter": {
       "type": "array",
-      "defaultValue": [
-        "55.55.0.0/16"
-      ],
       "metadata": {
         "description": "Proxy Address prefix to filter"
       }
     },
     "privateAZFWIP": {
       "type": "string",
-      "defaultValue": "10.5.0.4",
       "metadata": {
         "description": "Private IP of the Azure Firewall"
       }
@@ -120,7 +116,6 @@
     },
     "firewallIPGroupName": {
       "type": "string",
-      "defaultValue": "",
       "metadata": {
         "description": "IP Group used by the Firewall"
       }
