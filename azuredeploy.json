@@ -17,6 +17,7 @@
     },
     "userList" : {
       "type": "array",
+      "defaultValue" : "",
       "metadata": {
         "description": "List of users for compute creation. Pattern '{userName: value, objectId: AAD userId}"
       }
@@ -44,13 +45,6 @@
       ],
       "metadata": {
         "description": "Determines whether or not a new VNet should be provisioned."
-      }
-    },
-    "vnetName": {
-      "type": "string",
-      "defaultValue": "[format('{0}-vnet', resourceGroup().name)]",
-      "metadata": {
-        "description": "Name of the VNet"
       }
     },
     "addressPrefixes": {
@@ -90,6 +84,7 @@
     },
     "proxyAddressPrefixesToFilter": {
       "type": "array",
+      "defaultValue": [],
       "metadata": {
         "description": "Proxy Address prefix to filter"
       }
@@ -147,7 +142,7 @@
     },
     "storageAccountName": {
       "type": "string",
-      "defaultValue": "[format('sa{0}{1}', replace(resourceGroup().name,'-',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
+      "defaultValue": "[format('sa{0}{1}', replace(resourceGroup().name,'_',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
       "metadata": {
         "description": "Name of the storage account."
       }
@@ -166,7 +161,7 @@
     },
     "cognitiveServiceName": {
       "type": "string",
-      "defaultValue": "[format('aoai{0}{1}', replace(resourceGroup().name,'-',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
+      "defaultValue": "[format('aoai{0}{1}', replace(resourceGroup().name,'_',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
       "metadata": {
         "description": "Name of the Azure OpenAI account."
       }
@@ -191,7 +186,7 @@
     },
     "keyVaultName": {
       "type": "string",
-      "defaultValue": "[format('kv{0}{1}', replace(resourceGroup().name,'-',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
+      "defaultValue": "[format('kv{0}{1}', replace(resourceGroup().name,'_',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
       "metadata": {
         "description": "Name of the key vault."
       }
@@ -220,7 +215,7 @@
     },
     "applicationInsightsName": {
       "type": "string",
-      "defaultValue": "[format('ai{0}{1}', replace(resourceGroup().name,'-',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
+      "defaultValue": "[format('ai{0}{1}', replace(resourceGroup().name,'_',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
       "metadata": {
         "description": "Name of ApplicationInsights."
       }
@@ -239,7 +234,7 @@
     },
     "containerRegistryName": {
       "type": "string",
-      "defaultValue": "[format('cr{0}{1}', replace(resourceGroup().name,'-',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
+      "defaultValue": "[format('cr{0}{1}', replace(resourceGroup().name,'_',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
       "metadata": {
         "description": "The container registry bind to the workspace."
       }
@@ -364,10 +359,11 @@
     "containerRegistryId": "[resourceId(resourceGroup().name, 'Microsoft.ContainerRegistry/registries', parameters('containerRegistryName'))]",
     "applicationInsightId": "[resourceId(resourceGroup().name, 'Microsoft.Insights/components', parameters('applicationInsightsName'))]",
     "vnetResourceGroupName": "[resourceGroup().name]",
+    "vnetName": "[format('{0}-vnet', resourceGroup().name)]",
     "vnetLocation": "[resourceGroup().location]",
-    "vnetId": "[resourceId(variables('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
-    "subnetComputeId": "[resourceId(variables('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetComputeName'))]",
-    "subnetPEId": "[resourceId(variables('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetPEName'))]",
+    "vnetId": "[resourceId(variables('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks', variables('vnetName'))]",
+    "subnetComputeId": "[resourceId(variables('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetComputeName'))]",
+    "subnetPEId": "[resourceId(variables('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetPEName'))]",
     "hubVNetId": "[resourceId(parameters('hubVNetResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('hubVNetName'))]",
     "ipGroupId": "[resourceId(parameters('hubVNetResourceGroupName'), 'Microsoft.Network/ipGroups', parameters('firewallIPGroupName'))]",
     "privateDnsZoneName": {
@@ -534,7 +530,7 @@
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
       ]
     },
     {
@@ -651,14 +647,14 @@
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
       ]
     },
     {
       "condition": "[equals(parameters('vnetOption'), 'new')]",
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2022-05-01",
-      "name": "[parameters('vnetName')]",
+      "name": "[variables('vnetName')]",
       "location": "[resourceGroup().location]",
       "tags": "[parameters('tagValues')]",
       "properties": {
@@ -673,7 +669,7 @@
       "condition": "[equals(parameters('subnetOption'), 'new')]",
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "apiVersion": "2022-05-01",
-      "name": "[format('{0}/{1}', parameters('vnetName'), parameters('subnetComputeName'))]",
+      "name": "[format('{0}/{1}', variables('vnetName'), parameters('subnetComputeName'))]",
       "properties": {
         "addressPrefix": "[parameters('subnetComputePrefix')]",
         "privateLinkServiceNetworkPolicies": "Enabled",
@@ -692,11 +688,11 @@
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]",
         "[resourceId('Microsoft.Network/serviceEndpointPolicies', variables('serviceEndpointPolicyName'))]",
         "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
         "[resourceId('Microsoft.Network/routeTables', variables('routeTableName'))]",
-        "[resourceId('Microsoft.Network/virtualNetworks/virtualNetworkPeerings', parameters('vnetName'), format('{0}-to-hub',parameters('hubVNetName')))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/virtualNetworkPeerings', variables('vnetName'), format('{0}-to-hub',parameters('hubVNetName')))]",
         "nestedTemplate"
       ]
     },
@@ -704,7 +700,7 @@
       "condition": "[equals(parameters('subnetOption'), 'new')]",
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "apiVersion": "2022-05-01",
-      "name": "[format('{0}/{1}', parameters('vnetName'), parameters('subnetPEName'))]",
+      "name": "[format('{0}/{1}', variables('vnetName'), parameters('subnetPEName'))]",
       "properties": {
         "addressPrefix": "[parameters('subnetPEPrefix')]",
         "privateLinkServiceNetworkPolicies": "Enabled",
@@ -725,8 +721,8 @@
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
         "[resourceId('Microsoft.Network/serviceEndpointPolicies', variables('serviceEndpointPolicyName'))]",
-        "[resourceId('Microsoft.Network/virtualNetworks/virtualNetworkPeerings', parameters('vnetName'), format('{0}-to-hub',parameters('hubVNetName')))]",
-        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetComputeName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/virtualNetworkPeerings', variables('vnetName'), format('{0}-to-hub',parameters('hubVNetName')))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetComputeName'))]",
         "[resourceId('Microsoft.Network/routeTables', variables('routeTableName'))]",
         "nestedTemplate"
       ]
@@ -734,7 +730,7 @@
     {
       "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
       "apiVersion": "2020-05-01",
-      "name": "[format('{0}/{1}', parameters('vnetName'), format('{0}-to-hub',parameters('hubVNetName')))]",
+      "name": "[format('{0}/{1}', variables('vnetName'), format('{0}-to-hub',parameters('hubVNetName')))]",
       "properties": {
         "allowVirtualNetworkAccess": true,
         "allowForwardedTraffic": true,
@@ -745,7 +741,7 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
       ]
     },
     {
@@ -825,8 +821,8 @@
         "networkAcls": "[if(equals(parameters('keyVaultBehindVNet'), 'true'), variables('networkRuleSetBehindVNet'), json('null'))]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetPEName'))]",
-        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetComputeName'))]"
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetPEName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetComputeName'))]"
       ]
     },
     {
@@ -844,8 +840,8 @@
         "networkRuleSet": "[if(equals(parameters('containerRegistryBehindVNet'), 'true'), variables('networkRuleSetBehindVNet'), json('null'))]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetPEName'))]",
-        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetComputeName'))]"
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetPEName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetComputeName'))]"
       ]
     },
     {
@@ -960,6 +956,7 @@
       ]
     },
     {
+      "condition": "[not(empty(parameters('userList')))]",
       "copy": {
         "name": "computeInstanceCopy",
         "count": "[length(parameters('userList'))]"
@@ -977,7 +974,7 @@
           "properties": {
               "vmSize": "[parameters('vmSize')]",
               "subnet": {
-                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetComputeName'))]"
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetComputeName'))]"
               },
               "enableNodePublicIp" : "false",
               "personalComputeInstanceSettings": {
@@ -998,12 +995,12 @@
       "condition": "[variables('enablePE')]",
       "type": "Microsoft.Network/privateEndpoints",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetPEName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetPEName'))]",
         "[resourceId('Microsoft.MachineLearningServices/workspaces', parameters('workspaceName'))]"
       ],
       "apiVersion": "2022-05-01",
       "name": "[format('{0}-PrivateEndpoint', parameters('workspaceName'))]",
-      "location": "[parameters('vnetLocation')]",
+      "location": "[variables('vnetLocation')]",
       "tags": "[parameters('tagValues')]",
       "properties": {
         "privateLinkServiceConnections": "[if(equals(parameters('privateEndpointType'), 'AutoApproval'), variables('defaultPEConnections'), json('null'))]",
@@ -1017,12 +1014,12 @@
       "condition": "[variables('enablePE')]",
       "type": "Microsoft.Network/privateEndpoints",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetPEName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetPEName'))]",
         "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
       ],
       "apiVersion": "2022-05-01",
       "name": "[format('{0}-PrivateEndpoint-blob', parameters('workspaceName'))]",
-      "location": "[parameters('vnetLocation')]",
+      "location": "[variables('vnetLocation')]",
       "tags": "[parameters('tagValues')]",
       "properties": {
         "privateLinkServiceConnections": "[if(equals(parameters('privateEndpointType'), 'AutoApproval'), variables('blobPEConnections'), json('null'))]",
@@ -1036,12 +1033,12 @@
       "condition": "[variables('enablePE')]",
       "type": "Microsoft.Network/privateEndpoints",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetPEName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetPEName'))]",
         "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
       ],
       "apiVersion": "2022-05-01",
       "name": "[format('{0}-PrivateEndpoint-file', parameters('workspaceName'))]",
-      "location": "[parameters('vnetLocation')]",
+      "location": "[variables('vnetLocation')]",
       "tags": "[parameters('tagValues')]",
       "properties": {
         "privateLinkServiceConnections": "[if(equals(parameters('privateEndpointType'), 'AutoApproval'), variables('filePEConnections'), json('null'))]",
@@ -1055,12 +1052,12 @@
       "condition": "[variables('enablePE')]",
       "type": "Microsoft.Network/privateEndpoints",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetPEName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetPEName'))]",
         "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
       ],
       "apiVersion": "2022-05-01",
       "name": "[format('{0}-PrivateEndpoint-kv', parameters('workspaceName'))]",
-      "location": "[parameters('vnetLocation')]",
+      "location": "[variables('vnetLocation')]",
       "tags": "[parameters('tagValues')]",
       "properties": {
         "privateLinkServiceConnections": "[if(equals(parameters('privateEndpointType'), 'AutoApproval'), variables('KVPEConnections'), json('null'))]",
@@ -1074,12 +1071,12 @@
       "condition": "[variables('enablePE')]",
       "type": "Microsoft.Network/privateEndpoints",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetPEName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetPEName'))]",
         "[resourceId('Microsoft.CognitiveServices/accounts', parameters('cognitiveServiceName'))]"
       ],
       "apiVersion": "2022-05-01",
       "name": "[format('{0}-PrivateEndpoint-aoai', parameters('workspaceName'))]",
-      "location": "[parameters('vnetLocation')]",
+      "location": "[variables('vnetLocation')]",
       "tags": "[parameters('tagValues')]",
       "properties": {
         "privateLinkServiceConnections": "[if(equals(parameters('privateEndpointType'), 'AutoApproval'), variables('AOAIPEConnections'), json('null'))]",
@@ -1093,12 +1090,12 @@
       "condition": "[variables('enablePE')]",
       "type": "Microsoft.Network/privateEndpoints",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetPEName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetPEName'))]",
         "[resourceId('Microsoft.Insights/components', parameters('applicationInsightsName'))]"
       ],
       "apiVersion": "2022-05-01",
       "name": "[format('{0}-PrivateEndpoint-mon', parameters('workspaceName'))]",
-      "location": "[parameters('vnetLocation')]",
+      "location": "[variables('vnetLocation')]",
       "tags": "[parameters('tagValues')]",
       "properties": {
         "privateLinkServiceConnections": "[if(equals(parameters('privateEndpointType'), 'AutoApproval'), variables('monPEConnections'), json('null'))]",
@@ -1566,7 +1563,7 @@
         "mode": "Incremental",
         "parameters": {
           "vnetName": { 
-            "value" : "[parameters('vnetName')]"
+            "value" : "[variables('vnetName')]"
           },
           "vnetResourceGroupName": {
             "value":"[variables('vnetResourceGroupName')]"
@@ -1594,14 +1591,14 @@
             {
               "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
               "apiVersion": "2020-05-01",
-              "name": "[format('{0}/{1}', parameters('hubVNetName'), format('hub-to-{0}', parameters('vnetName')))]",        
+              "name": "[format('{0}/{1}', parameters('hubVNetName'), format('hub-to-{0}', variables('vnetName')))]",        
               "properties": {
                 "allowVirtualNetworkAccess": true,
                 "allowForwardedTraffic": false,
                 "allowGatewayTransit": false,
                 "useRemoteGateways": false,
                 "remoteVirtualNetwork": {
-                  "id": "[resourceId(variables('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
+                  "id": "[resourceId(variables('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks', variables('vnetName'))]"
                 }
               }
             }
@@ -1609,7 +1606,7 @@
         }
       },
       "dependsOn": [
-        "[resourceId(variables('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
+        "[resourceId(variables('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks', variables('vnetName'))]"
       ]
     },
     {
@@ -1624,6 +1621,9 @@
           },
           "storageAccountType": { 
             "value" : "parameters('storageAccountType'))"
+          },
+          "keyVaultName": { 
+            "value" : "parameters('keyVaultName'))"
           },
           "proxyAddressPrefixesToFilter": {
             "value":"[parameters('proxyAddressPrefixesToFilter')]"
@@ -1648,6 +1648,9 @@
             "storageAccountType": { 
               "type" : "string"
             },
+            "keyVaultName": {
+              "type" : "string"
+            },
             "proxyAddressPrefixesToFilter": {
               "type" : "array"
             },
@@ -1664,6 +1667,7 @@
           "variables": {},
           "resources": [
             {
+              "condition": "[not(empty(parameters('proxyAddressPrefixesToFilter')))]", 
               "type": "Microsoft.Storage/storageAccounts",
               "apiVersion": "2022-05-01",
               "name": "[parameters('storageAccountName')]",
@@ -1692,6 +1696,21 @@
                   ]
                 }
               }
+            },
+            { 
+              "type": "Microsoft.KeyVault/vaults",
+              "name": "[parameters('keyVaultName')]",
+              "apiVersion": "2022-07-01",
+              "location": "[resourceGroup().location]",
+              "properties": {
+                "publicNetworkAccess": "disabled",
+                "tenantId":"[subscription().tenantId]",
+                "sku": {
+                  "name": "standard",
+                  "family": "A"
+                },
+                "accessPolicies": []
+              }
             }
           ]
         }
@@ -1718,7 +1737,7 @@
             "value":"[array(parameters('subnetComputePrefix'))]"
           },
           "location": {
-            "value": "westeurope"
+            "value": "[resourceGroup().location]"
           }
         },
         "template": {
@@ -1743,7 +1762,7 @@
             {
               "type": "Microsoft.Network/ipGroups",
               "apiVersion": "2023-04-01",
-              "location": "westeurope",
+              "location": "[resourceGroup().location]",
               "name": "[parameters('firewallIPGroupName')]",        
               "properties": {
                 "ipAddresses": "[union(reference(resourceId(parameters('hubVNetResourceGroupName'),'Microsoft.Network/ipGroups', parameters('firewallIPGroupName')),'2023-04-01').ipAddresses, array(parameters('subnetComputePrefix')))]"
