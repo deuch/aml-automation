@@ -17,7 +17,7 @@
     },
     "userList" : {
       "type": "array",
-      "defaultValue" : "",
+      "defaultValue" : [],
       "metadata": {
         "description": "List of users for compute creation. Pattern '{userName: value, objectId: AAD userId}"
       }
