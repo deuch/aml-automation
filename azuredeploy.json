@@ -115,6 +115,19 @@
         "description": "IP Group used by the Firewall"
       }
     },
+    "azureOpenAILocation": {
+      "type": "string",
+      "defaultValue": "France Central",
+      "allowedValues": [
+        "France Central",
+        "Sweden Central",
+        "Switzerland North",
+        "UK South"
+      ],
+      "metadata": {
+        "description": "Location of Azure Open AI resources."
+      }
+    },
     "subnetComputePrefix": {
       "type": "string",
       "defaultValue": "[cidrSubnet(first(parameters('addressPrefixes')), 24, 0)]",
@@ -142,7 +155,7 @@
     },
     "storageAccountName": {
       "type": "string",
-      "defaultValue": "[format('sa{0}{1}', replace(resourceGroup().name,'_',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
+      "defaultValue": "[toLower(format('sa{0}{1}', replace(resourceGroup().name,'_',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4)))]",
       "metadata": {
         "description": "Name of the storage account."
       }
@@ -161,7 +174,7 @@
     },
     "cognitiveServiceName": {
       "type": "string",
-      "defaultValue": "[format('aoai{0}{1}', replace(resourceGroup().name,'_',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
+      "defaultValue": "[toLower(format('aoai{0}{1}', replace(resourceGroup().name,'_',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4)))]",
       "metadata": {
         "description": "Name of the Azure OpenAI account."
       }
@@ -186,7 +199,7 @@
     },
     "keyVaultName": {
       "type": "string",
-      "defaultValue": "[format('kv{0}{1}', replace(resourceGroup().name,'_',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
+      "defaultValue": "[toLower(format('kv{0}{1}', replace(resourceGroup().name,'_',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4)))]",
       "metadata": {
         "description": "Name of the key vault."
       }
@@ -215,7 +228,7 @@
     },
     "applicationInsightsName": {
       "type": "string",
-      "defaultValue": "[format('ai{0}{1}', replace(resourceGroup().name,'_',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
+      "defaultValue": "[toLower(format('ai{0}{1}', replace(resourceGroup().name,'_',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4)))]",
       "metadata": {
         "description": "Name of ApplicationInsights."
       }
@@ -234,7 +247,7 @@
     },
     "containerRegistryName": {
       "type": "string",
-      "defaultValue": "[format('cr{0}{1}', replace(resourceGroup().name,'_',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4))]",
+      "defaultValue": "[toLower(format('cr{0}{1}', replace(resourceGroup().name,'_',''), substring(uniqueString(resourceGroup().id, parameters('workspaceName')),0,4)))]",
       "metadata": {
         "description": "The container registry bind to the workspace."
       }
@@ -359,7 +372,7 @@
     "containerRegistryId": "[resourceId(resourceGroup().name, 'Microsoft.ContainerRegistry/registries', parameters('containerRegistryName'))]",
     "applicationInsightId": "[resourceId(resourceGroup().name, 'Microsoft.Insights/components', parameters('applicationInsightsName'))]",
     "vnetResourceGroupName": "[resourceGroup().name]",
-    "vnetName": "[format('{0}-vnet', resourceGroup().name)]",
+    "vnetName": "[toLower(format('{0}-vnet', resourceGroup().name))]",
     "vnetLocation": "[resourceGroup().location]",
     "vnetId": "[resourceId(variables('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks', variables('vnetName'))]",
     "subnetComputeId": "[resourceId(variables('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetComputeName'))]",
@@ -397,8 +410,8 @@
       "azurechinacloud": ""
     },
     "enablePE": "[not(equals(parameters('privateEndpointType'), 'none'))]",
-    "networkSecurityGroupName" : "[format('nsg-{0}', resourceGroup().name)]",
-    "routeTableName": "[format('rt-{0}', resourceGroup().name)]",
+    "networkSecurityGroupName" : "[toLower(format('nsg-{0}', resourceGroup().name))]",
+    "routeTableName": "[toLower(format('rt-{0}', resourceGroup().name))]",
     "networkRuleSetBehindVNet": {
       "defaultAction": "deny",
       "virtualNetworkRules": [
@@ -432,9 +445,9 @@
         "service": "Microsoft.Storage"
       }
     ],
-    "serviceEndpointPolicyName": "[format('sep-{0}', parameters('workspaceName'))]",
+    "serviceEndpointPolicyName": "[toLower(format('sep-{0}', parameters('workspaceName')))]",
     "privateEndpointSettings": {
-      "name": "[format('{0}-PrivateEndpoint', parameters('workspaceName'))]",
+      "name": "[toLower(format('{0}-PrivateEndpoint', parameters('workspaceName')))]",
       "properties": {
         "privateLinkServiceId": "[resourceId('Microsoft.MachineLearningServices/workspaces', parameters('workspaceName'))]",
         "groupIds": [
@@ -443,7 +456,7 @@
       }
     },
     "privateBlobEndpointSettings": {
-      "name": "[format('{0}-PrivateEndpoint-blob', parameters('workspaceName'))]",
+      "name": "[toLower(format('{0}-PrivateEndpoint-blob', parameters('workspaceName')))]",
       "properties": {
         "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
         "groupIds": [
@@ -452,7 +465,7 @@
       }
     },
     "privateFileEndpointSettings": {
-      "name": "[format('{0}-PrivateEndpoint-file', parameters('workspaceName'))]",
+      "name": "[toLower(format('{0}-PrivateEndpoint-file', parameters('workspaceName')))]",
       "properties": {
         "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
         "groupIds": [
@@ -461,7 +474,7 @@
       }
     },
     "privateKVEndpointSettings": {
-      "name": "[format('{0}-PrivateEndpoint-kv', parameters('workspaceName'))]",
+      "name": "[toLower(format('{0}-PrivateEndpoint-kv', parameters('workspaceName')))]",
       "properties": {
         "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
         "groupIds": [
@@ -470,7 +483,7 @@
       }
     },
     "privateAOAIEndpointSettings": {
-      "name": "[format('{0}-PrivateEndpoint-aoai', parameters('workspaceName'))]",
+      "name": "[toLower(format('{0}-PrivateEndpoint-aoai', parameters('workspaceName')))]",
       "properties": {
         "privateLinkServiceId": "[resourceId('Microsoft.CognitiveServices/accounts', parameters('cognitiveServiceName'))]",
         "groupIds": [
@@ -479,7 +492,7 @@
       }
     },
     "privateMonEndpointSettings": {
-      "name": "[format('{0}-PrivateEndpoint-mon', parameters('workspaceName'))]",
+      "name": "[toLower(format('{0}-PrivateEndpoint-mon', parameters('workspaceName')))]",
       "properties": {
         "privateLinkServiceId": "[resourceId('microsoft.insights/privatelinkscopes', format('pls{0}', parameters('applicationInsightsName')))]",
         "groupIds": [
@@ -497,7 +510,7 @@
     "userAssignedIdentityPrimary": {
       "[format('{0}', variables('primaryUserAssignedIdentity'))]": {}
     },
-    "computeManagedIdentity": "[format('{0}-mi', parameters('workspaceName'))]",
+    "computeManagedIdentity": "[toLower(format('{0}-mi', parameters('workspaceName')))]",
     "userAssignedIdentitiesPrimary": "[if(not(equals(parameters('primaryUserAssignedIdentityName'), '')), variables('userAssignedIdentityPrimary'), json('{}'))]",
     "primaryUserAssignedIdentity": "[resourceId(parameters('primaryUserAssignedIdentityResourceGroup'), 'Microsoft.ManagedIdentity/userAssignedIdentities', parameters('primaryUserAssignedIdentityName'))]",
     "userAssignedIdentityCmk": {
@@ -669,7 +682,7 @@
       "condition": "[equals(parameters('subnetOption'), 'new')]",
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "apiVersion": "2022-05-01",
-      "name": "[format('{0}/{1}', variables('vnetName'), parameters('subnetComputeName'))]",
+      "name": "[toLower(format('{0}/{1}', variables('vnetName'), parameters('subnetComputeName')))]",
       "properties": {
         "addressPrefix": "[parameters('subnetComputePrefix')]",
         "privateLinkServiceNetworkPolicies": "Enabled",
@@ -700,7 +713,7 @@
       "condition": "[equals(parameters('subnetOption'), 'new')]",
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "apiVersion": "2022-05-01",
-      "name": "[format('{0}/{1}', variables('vnetName'), parameters('subnetPEName'))]",
+      "name": "[toLower(format('{0}/{1}', variables('vnetName'), parameters('subnetPEName')))]",
       "properties": {
         "addressPrefix": "[parameters('subnetPEPrefix')]",
         "privateLinkServiceNetworkPolicies": "Enabled",
@@ -730,7 +743,7 @@
     {
       "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
       "apiVersion": "2020-05-01",
-      "name": "[format('{0}/{1}', variables('vnetName'), format('{0}-to-hub',parameters('hubVNetName')))]",
+      "name": "[toLower(format('{0}/{1}', variables('vnetName'), format('{0}-to-hub',parameters('hubVNetName'))))]",
       "properties": {
         "allowVirtualNetworkAccess": true,
         "allowForwardedTraffic": true,
@@ -904,7 +917,7 @@
       "type": "Microsoft.CognitiveServices/accounts",
       "apiVersion": "2021-10-01",
       "name": "[parameters('cognitiveServiceName')]",
-      "location": "[resourceGroup().location]",
+      "location": "[toLower(replace(parameters('azureOpenAILocation'),' ',''))]",
       "sku": {
         "name": "[parameters('azureOpenAISku')]"
       },
