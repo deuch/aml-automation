@@ -1,0 +1,112 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "metadata": {
+      "_generator": {
+        "name": "bicep",
+        "version": "0.18.4.5664",
+        "templateHash": "11843157828774843057"
+      }
+    },
+    "parameters": {
+      "workspaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the name of the Azure Machine Learning workspace."
+      }
+    },
+      "userList" : {
+      "type": "array",
+      "defaultValue" : [],
+      "metadata": {
+        "description": "List of users for compute creation. Pattern '{userName: value, objectId: AAD userId}"
+      }
+    },
+      "entity" : {
+      "type": "string",
+      "metadata": {
+        "description": "User Entity"
+      }
+    },
+    "vmPrefixName" : {
+      "type": "string",
+      "metadata": {
+        "description": "prefixName for the VM"
+      }
+    },
+    "vmSize" : {
+      "type": "string",
+      "defaultValue": "Standard_DS11_v2",
+      "allowedValues": [
+        "Standard_DS11_v2",
+        "Standard_DS3_v2",
+        "Standard_E4ds_v4",
+        "Standard_D13_v2"
+      ],
+      "metadata": {
+        "description": "SKU for the VM"
+      }
+    },
+     "vnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the VNET for Compute Instance"
+      }
+    },
+     "subnetComputeName": {
+      "type": "string",
+      "defaultValue": "aml_compute",
+      "metadata": {
+        "description": "Name of the subnet for Compute Instance"
+      }
+    },
+     "managedIdentity": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of managedIdentity"
+      }
+    }
+    },
+    "variables": {
+      "computeManagedIdentity": "[toLower(format('{0}-mi', parameters('workspaceName')))]"
+    },
+ "resources": [
+
+ {
+      "condition": "[not(empty(parameters('userList')))]",
+      "copy": {
+        "name": "computeInstanceCopy",
+        "count": "[length(parameters('userList'))]"
+      },
+      "type": "Microsoft.MachineLearningServices/workspaces/computes",
+      "name": "[format('{0}/{1}', parameters('workspaceName'), take(concat(parameters('vmPrefixName'), '-', parameters('userList')[copyIndex()].userName), 24))]",
+      "apiVersion": "2022-06-01-preview",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "userName": "[parameters('userList')[copyIndex()].userName]",
+        "entity": "[parameters('entity')]"
+      },
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": { "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdentity'))]": {} }
+      },
+      "properties": {
+          "computeType": "ComputeInstance",
+          "properties": {
+              "vmSize": "[parameters('vmSize')]",
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetComputeName'))]"
+              },
+              "enableNodePublicIp" : "true",
+               "idleTimeBeforeShutdown": "PT60M",
+              "personalComputeInstanceSettings": {
+                  "assignedUser": {
+                      "objectId": "[parameters('userList')[copyIndex()].objectId]",
+                      "tenantId": "[subscription().tenantId]"
+                  }
+              }
+          }
+      }
+    }
+ ]
+}
